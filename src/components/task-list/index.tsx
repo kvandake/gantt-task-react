@@ -1,7 +1,8 @@
+import type { MouseEvent, RefObject } from "react";
 import React, { memo } from "react";
-import type { ComponentType, MouseEvent, RefObject } from "react";
 
 import {
+  AllowMoveTask,
   ChildByLevelMap,
   Column,
   DateSetup,
@@ -9,20 +10,17 @@ import {
   Distances,
   Icons,
   MapTaskToNestedIndex,
-  AllowMoveTask,
   OnResizeColumn,
   Task,
-  TaskListHeaderProps,
-  TaskListTableProps,
   TaskOrEmpty,
 } from "../../types/public-types";
 
 import { useOptimizedList } from "../../helpers/use-optimized-list";
-
-import styles from "./task-list.module.css";
 import { useTableListResize } from "../gantt/use-tablelist-resize";
-
-// const SCROLL_DELAY = 25;
+import { TaskListTableHeaders } from "./task-list-table-headers";
+import { TaskListSortableTable } from "./task-list-sortable-table";
+import { TaskListTable } from "./task-list-table";
+import styles from "./task-list.module.css";
 
 export type TaskListProps = {
   ganttRef: RefObject<HTMLDivElement>;
@@ -63,8 +61,6 @@ export type TaskListProps = {
   taskListContainerRef: RefObject<HTMLDivElement>;
   taskListRef: RefObject<HTMLDivElement>;
   tasks: readonly TaskOrEmpty[];
-  TaskListHeader: ComponentType<TaskListHeaderProps>;
-  TaskListTable: ComponentType<TaskListTableProps>;
   onResizeColumn?: OnResizeColumn;
 };
 
@@ -100,8 +96,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
   taskListContainerRef,
   taskListRef,
   tasks,
-  TaskListHeader,
-  TaskListTable,
   onResizeColumn,
   canMoveTasks,
 }) => {
@@ -120,60 +114,9 @@ const TaskListInner: React.FC<TaskListProps> = ({
     fullRowHeight
   );
 
-  // const [{ isScrollingToTop }, scrollToTopRef] = useDrop(
-  //   {
-  //     accept: ROW_DRAG_TYPE,
-
-  //     collect: monitor => ({
-  //       isScrollingToTop: monitor.isOver(),
-  //     }),
-
-  //     canDrop: () => false,
-  //   },
-  //   []
-  // );
-
-  // const [{ isScrollingToBottom }, scrollToBottomRef] = useDrop(
-  //   {
-  //     accept: ROW_DRAG_TYPE,
-
-  //     collect: monitor => ({
-  //       isScrollingToBottom: monitor.isOver(),
-  //     }),
-
-  //     canDrop: () => false,
-  //   },
-  //   [scrollToBottomStep]
-  // );
-  // const isScrollingToTop = false;
-  // const isScrollingToBottom = false;
-  // useEffect(() => {
-  //   if (!isScrollingToTop) {
-  //     return undefined;
-  //   }
-
-  //   const intervalId = setInterval(() => {
-  //     scrollToTopStep();
-  //   }, SCROLL_DELAY);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, [isScrollingToTop, scrollToTopStep]);
-
-  // useEffect(() => {
-  //   if (!isScrollingToBottom) {
-  //     return undefined;
-  //   }
-
-  //   const intervalId = setInterval(() => {
-  //     scrollToBottomStep();
-  //   }, SCROLL_DELAY);
-
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, [isScrollingToBottom, scrollToBottomStep]);
+  const RenderTaskListTable = canMoveTasks
+    ? TaskListSortableTable
+    : TaskListTable;
 
   return (
     <div className={styles.taskListRoot} ref={taskListRef}>
@@ -183,7 +126,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
           width: tableWidth,
         }}
       >
-        <TaskListHeader
+        <TaskListTableHeaders
           canMoveTasks={canMoveTasks}
           headerHeight={distances.headerHeight}
           columns={columns}
@@ -213,7 +156,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
                 backgroundImage: `linear-gradient(to bottom, transparent ${fullRowHeight}px, #f5f5f5 ${fullRowHeight}px)`,
               }}
             >
-              <TaskListTable
+              <RenderTaskListTable
                 canMoveTasks={canMoveTasks}
                 allowMoveTask={allowMoveTask}
                 childTasksMap={childTasksMap}

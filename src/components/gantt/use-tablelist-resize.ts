@@ -1,7 +1,7 @@
 import { RefObject, useEffect, useMemo, useState } from "react";
 
 import { Column, OnResizeColumn } from "../../types/public-types";
-import { useTaskListColumnsBuilder } from "../task-list/columns/use-task-list-columns-builder";
+import { useTaskListColumnsBuilder } from "../task-list/task-list-table-columns/use-task-list-columns-builder";
 import { useGanttLocale } from "../gantt-locale";
 import { useGanttTheme } from "../gantt-theme";
 

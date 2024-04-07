@@ -25,11 +25,9 @@ import { GridProps } from "../grid/grid";
 import { ganttDateRange } from "../../helpers/date-helper";
 import { CalendarProps } from "../calendar/calendar";
 import { TaskGanttContentProps } from "./task-gantt-content";
-import { TaskListHeaderDefault } from "../task-list/task-list-header";
-import { TaskListTableDefault } from "../task-list/task-list-table";
 import { StandardTooltipContent, Tooltip } from "../other/tooltip";
 import { VerticalScroll } from "../other/vertical-scroll";
-import { TaskList, TaskListProps } from "../task-list/task-list";
+import { TaskList, TaskListProps } from "../task-list";
 import { TaskGantt } from "./task-gantt";
 import { sortTasks } from "../../helpers/sort-tasks";
 import { getChildsAndRoots } from "../../helpers/get-childs-and-roots";
@@ -91,8 +89,6 @@ import { GANTT_EN_LOCALE } from "../../locales";
 export const Gantt: React.FC<GanttProps> = props => {
   const {
     theme: clientTheme,
-    TaskListHeader = TaskListHeaderDefault,
-    TaskListTable = TaskListTableDefault,
     TooltipContent = StandardTooltipContent,
     authorizedRelations = [
       "startToStart",
@@ -1792,8 +1788,6 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const tableProps: TaskListProps = {
-    TaskListHeader,
-    TaskListTable,
     canMoveTasks,
     allowMoveTask,
     canResizeColumns,
@@ -1843,7 +1837,7 @@ export const Gantt: React.FC<GanttProps> = props => {
             ref={wrapperRef}
             data-testid={`gantt-main`}
           >
-            {/* {columns.length > 0 && <TaskList {...tableProps} />} */}
+            {/* {task-list-table-columns.length > 0 && <TaskList {...tableProps} />} */}
             {(!columnsProp || columnsProp.length > 0) && (
               <TaskList {...tableProps} />
             )}

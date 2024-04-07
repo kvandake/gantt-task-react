@@ -1,10 +1,10 @@
 import React, { Fragment, memo } from "react";
 
-import { TaskListHeaderProps } from "../../types/public-types";
+import { TaskListHeaderProps } from "../../../types/public-types";
 
 import styles from "./task-list-header.module.css";
 
-const TaskListHeaderDefaultInner: React.FC<TaskListHeaderProps> = ({
+const TaskListTableHeadersDefaultInner: React.FC<TaskListHeaderProps> = ({
   headerHeight,
   columns,
   canResizeColumns,
@@ -75,4 +75,4 @@ const TaskListHeaderDefaultInner: React.FC<TaskListHeaderProps> = ({
   );
 };
 
-export const TaskListHeaderDefault = memo(TaskListHeaderDefaultInner);
+export const TaskListTableHeaders = memo(TaskListTableHeadersDefaultInner);

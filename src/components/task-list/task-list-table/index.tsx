@@ -1,15 +1,13 @@
 import type { ReactNode } from "react";
-import React, { memo, useMemo, useState } from "react";
+import React, { memo, useMemo } from "react";
 
-import { checkHasChildren } from "../../helpers/check-has-children";
-import { Task, TaskListTableProps } from "../../types/public-types";
-import { TaskListTableRow } from "./task-list-table-row";
+import { checkHasChildren } from "../../../helpers/check-has-children";
+import { Task, TaskListTableProps } from "../../../types/public-types";
+import { TaskListTableRow } from "../task-list-table-row";
 
 import styles from "./task-list-table.module.css";
 
 const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
-  allowMoveTask,
-  canMoveTasks,
   childTasksMap,
   columns,
   cutIdsMirror,
@@ -21,9 +19,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
   handleAddTask,
   handleDeleteTasks,
   handleEditTask,
-  handleMoveTaskBefore,
-  handleMoveTaskAfter,
-  handleMoveTasksInside,
   handleOpenContextMenu,
   icons,
   isShowTaskNumbers,
@@ -44,8 +39,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
       tasks.filter(task => !task.comparisonLevel || task.comparisonLevel === 1),
     [tasks]
   );
-
-  const [draggedTask, setDraggedTask] = useState(null);
 
   const renderedListWithOffset = useMemo(() => {
     if (!renderedIndexes) {
@@ -81,8 +74,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
 
       renderedList.push(
         <TaskListTableRow
-          canMoveTasks={canMoveTasks}
-          allowMoveTask={allowMoveTask}
           columns={columns}
           dateSetup={dateSetup}
           dependencyMap={dependencyMap}
@@ -93,9 +84,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
           handleAddTask={handleAddTask}
           handleDeleteTasks={handleDeleteTasks}
           handleEditTask={handleEditTask}
-          handleMoveTaskBefore={handleMoveTaskBefore}
-          handleMoveTaskAfter={handleMoveTaskAfter}
-          handleMoveTasksInside={handleMoveTasksInside}
           handleOpenContextMenu={handleOpenContextMenu}
           hasChildren={checkHasChildren(task, childTasksMap)}
           icons={icons}
@@ -111,9 +99,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
           selectTaskOnMouseDown={selectTaskOnMouseDown}
           task={task}
           key={id}
-          tasks={tasks}
-          draggedTask={draggedTask}
-          setDraggedTask={setDraggedTask}
         />
       );
     }
@@ -134,7 +119,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
     fullRowHeight,
     renderedTasks,
     mapTaskToNestedIndex,
-    allowMoveTask,
     columns,
     dateSetup,
     dependencyMap,
@@ -143,9 +127,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
     handleAddTask,
     handleDeleteTasks,
     handleEditTask,
-    handleMoveTaskBefore,
-    handleMoveTaskAfter,
-    handleMoveTasksInside,
     handleOpenContextMenu,
     childTasksMap,
     icons,
@@ -156,8 +137,6 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
     onExpanderClick,
     scrollToTask,
     selectTaskOnMouseDown,
-    tasks,
-    draggedTask,
   ]);
 
   return (
@@ -173,4 +152,4 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
   );
 };
 
-export const TaskListTableDefault = memo(TaskListTableDefaultInner);
+export const TaskListTable = memo(TaskListTableDefaultInner);

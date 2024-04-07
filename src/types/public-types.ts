@@ -559,8 +559,8 @@ export interface Icons {
   renderNoChildrenIcon: () => ReactNode;
 }
 
-export type AllowMoveTaskMethod = 'before' | 'inside' | 'after'
-export type AllowMoveTask = (task: TaskOrEmpty, method: AllowMoveTaskMethod) => boolean;
+export type InsertTaskPosition = 'before' | 'inside' | 'after'
+export type AllowMoveTask = (task: TaskOrEmpty, method: InsertTaskPosition) => boolean;
 
 export interface StylingOption {
   /**
@@ -575,8 +575,6 @@ export interface StylingOption {
   columns?: readonly Column[];
   onResizeColumn?: OnResizeColumn;
   TooltipContent?: ComponentType<{ task: Task }>;
-  TaskListHeader?: ComponentType<TaskListHeaderProps>;
-  TaskListTable?: ComponentType<TaskListTableProps>;
 
   /**
    * Render function of bottom part of header above chart

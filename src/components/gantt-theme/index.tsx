@@ -86,6 +86,7 @@ export const GanttThemeProvider: React.FC<GanttThemeProps> = ({
         colors.tableSelectedTaskBackgroundColor,
       "--gantt-table-resize-hover-color": colors.tableResizeHoverColor,
       "--gantt-table-action-color": colors.tableActionColor,
+      "--gantt-table-drag-indicator-color": colors.tableDragIndicatorColor,
       "--gantt-table-even-background-color": colors.tableEvenBackgroundColor,
       "--gantt-table-drag-task-background-color":
         colors.tableDragTaskBackgroundColor,

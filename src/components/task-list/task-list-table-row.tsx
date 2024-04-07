@@ -8,14 +8,17 @@ import {
   DependencyMap,
   Distances,
   Icons,
+  AllowMoveTask,
   Task,
   TaskOrEmpty,
 } from "../../types/public-types";
 
 import styles from "./task-list-table-row.module.css";
+import { DragIndicatorIcon } from "../icons/drag-indicator-icon";
 
 type TaskListTableRowProps = {
   canMoveTasks: boolean;
+  allowMoveTask: AllowMoveTask;
   columns: readonly Column[];
   dateSetup: DateSetup;
   dependencyMap: DependencyMap;
@@ -57,6 +60,7 @@ type TaskListTableRowProps = {
 const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
   const {
     canMoveTasks,
+    allowMoveTask,
     columns,
     dateSetup,
     dependencyMap,
@@ -90,6 +94,9 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
     setDraggedTask,
   } = props;
   const { id, comparisonLevel = 1 } = task;
+  const [isStartDraggingCurrentTask, setIsStartDraggingCurrentTask] =
+    useState(false);
+  const isDraggedCurrentTask = task.id === draggedTask?.id;
 
   const onRootMouseDown = useCallback(
     (event: MouseEvent) => {
@@ -151,7 +158,6 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
 
   const columnData: ColumnData = useMemo(
     () => ({
-      canMoveTasks,
       dateSetup,
       dependencies,
       depth,
@@ -168,7 +174,6 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
       task: task.type === "empty" ? task : getTaskCurrentState(task),
     }),
     [
-      canMoveTasks,
       dateSetup,
       dependencies,
       depth,
@@ -224,8 +229,13 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
   };
 
   const canDropBefore = (): boolean => {
-    let canDropBefore = false;
+    if (allowMoveTask) {
+      if (!allowMoveTask(task, "before")) {
+        return false;
+      }
+    }
 
+    let canDropBefore = false;
     if (draggedTask) {
       const hoveringOnBrother =
         draggedTask.parent === task.parent &&
@@ -250,8 +260,13 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
   };
 
   const canDropAfter = (): boolean => {
-    let canDropAfter = false;
+    if (allowMoveTask) {
+      if (!allowMoveTask(task, "after")) {
+        return false;
+      }
+    }
 
+    let canDropAfter = false;
     if (draggedTask) {
       const hoveringOnBrother =
         draggedTask.parent === task.parent &&
@@ -276,6 +291,11 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
   };
 
   const canDropInside = (): boolean => {
+    if (allowMoveTask) {
+      if (!allowMoveTask(task, "inside")) {
+        return false;
+      }
+    }
     let canDropInside = false;
     if (task.type !== "empty" && task.type !== "milestone") {
       if (draggedTask) {
@@ -302,7 +322,8 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
 
   return (
     <div
-      className={`${styles.taskListTableRow} ${isCut ? styles.isCut : ""}`}
+      draggable={isStartDraggingCurrentTask}
+      className={`${styles.taskListTableRow} ${isCut ? styles.isCut : ""} ${isDraggedCurrentTask ? styles.taskListTableRowDragging : ""}`}
       onMouseDown={onRootMouseDown}
       style={{
         height: fullRowHeight,
@@ -310,11 +331,20 @@ const TaskListTableRowInner: React.FC<TaskListTableRowProps> = props => {
         ...style,
       }}
       onContextMenu={onContextMenu}
-      draggable
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
+      {canMoveTasks && (
+        <div
+          className={styles.dragIndicator}
+          onMouseDown={() => setIsStartDraggingCurrentTask(true)}
+          onMouseUp={() => setIsStartDraggingCurrentTask(false)}
+        >
+          <DragIndicatorIcon className={styles.dragIndicatorIcon} />
+        </div>
+      )}
+
       {columns.map(({ component: Component, width }, index) => {
         return (
           <div

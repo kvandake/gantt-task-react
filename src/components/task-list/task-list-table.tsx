@@ -1,5 +1,5 @@
-import React, { memo, useMemo, useState } from "react";
 import type { ReactNode } from "react";
+import React, { memo, useMemo, useState } from "react";
 
 import { checkHasChildren } from "../../helpers/check-has-children";
 import { Task, TaskListTableProps } from "../../types/public-types";
@@ -8,6 +8,7 @@ import { TaskListTableRow } from "./task-list-table-row";
 import styles from "./task-list-table.module.css";
 
 const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
+  allowMoveTask,
   canMoveTasks,
   childTasksMap,
   columns,
@@ -81,6 +82,7 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
       renderedList.push(
         <TaskListTableRow
           canMoveTasks={canMoveTasks}
+          allowMoveTask={allowMoveTask}
           columns={columns}
           dateSetup={dateSetup}
           dependencyMap={dependencyMap}
@@ -132,7 +134,7 @@ const TaskListTableDefaultInner: React.FC<TaskListTableProps> = ({
     fullRowHeight,
     renderedTasks,
     mapTaskToNestedIndex,
-    canMoveTasks,
+    allowMoveTask,
     columns,
     dateSetup,
     dependencyMap,

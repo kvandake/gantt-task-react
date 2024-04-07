@@ -9,6 +9,7 @@ import {
   Distances,
   Icons,
   MapTaskToNestedIndex,
+  AllowMoveTask,
   OnResizeColumn,
   Task,
   TaskListHeaderProps,
@@ -25,6 +26,7 @@ import { useTableListResize } from "../gantt/use-tablelist-resize";
 
 export type TaskListProps = {
   ganttRef: RefObject<HTMLDivElement>;
+  allowMoveTask: AllowMoveTask;
   canMoveTasks: boolean;
   canResizeColumns: boolean;
   childTasksMap: ChildByLevelMap;
@@ -67,7 +69,7 @@ export type TaskListProps = {
 };
 
 const TaskListInner: React.FC<TaskListProps> = ({
-  canMoveTasks,
+  allowMoveTask,
   canResizeColumns,
   childTasksMap,
   columnsProp,
@@ -101,6 +103,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
   TaskListHeader,
   TaskListTable,
   onResizeColumn,
+  canMoveTasks,
 }) => {
   // Manage the column and list table resizing
   const [
@@ -109,7 +112,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
     tableWidth,
     onTableResizeStart,
     onColumnResizeStart,
-  ] = useTableListResize(columnsProp, onResizeColumn, ganttRef);
+  ] = useTableListResize(columnsProp, canMoveTasks, onResizeColumn, ganttRef);
 
   const renderedIndexes = useOptimizedList(
     taskListContainerRef,
@@ -181,6 +184,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
         }}
       >
         <TaskListHeader
+          canMoveTasks={canMoveTasks}
           headerHeight={distances.headerHeight}
           columns={columns}
           onColumnResizeStart={onColumnResizeStart}
@@ -211,6 +215,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
             >
               <TaskListTable
                 canMoveTasks={canMoveTasks}
+                allowMoveTask={allowMoveTask}
                 childTasksMap={childTasksMap}
                 columns={columns}
                 cutIdsMirror={cutIdsMirror}

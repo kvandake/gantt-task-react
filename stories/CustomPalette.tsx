@@ -69,6 +69,7 @@ export const CustomPalette: React.FC<AppProps> = props => {
           break;
 
         default:
+          console.debug("action", action);
           // eslint-disable-next-line no-case-declarations
           const taskWithChildrenIds = newTasks.map((task: Task) => task.parent);
           newTasks.map((task: Task) => {
@@ -142,6 +143,9 @@ export const CustomPalette: React.FC<AppProps> = props => {
       onWheel={handleWheel}
       onChangeExpandState={onChangeExpandState}
       enableTableListContextMenu={1}
+      allowMoveTask={(_, method) => {
+        return method !== "inside";
+      }}
     />
   );
 };

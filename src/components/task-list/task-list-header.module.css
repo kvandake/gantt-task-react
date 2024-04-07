@@ -10,6 +10,12 @@
   list-style: none;
 }
 
+.ganttTable_HeaderMoveTask {
+  display: table-cell;
+  min-width: 32px;
+  width: 32px;
+}
+
 .ganttTable_HeaderSeparator {
   /*noinspection CssUnresolvedCustomProperty*/
   border-right: 1px solid var(--gantt-table-divider-color, var(--gantt-divider-color));

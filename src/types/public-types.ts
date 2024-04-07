@@ -152,6 +152,7 @@ export interface ColorStyles {
 
 
   tableActionColor: string;
+  tableDragIndicatorColor: string;
   tableResizeHoverColor: string;
   scrollbarThumbColor: string;
 
@@ -345,6 +346,12 @@ export type OnChangeTasksAction =
     }
   | {
       type: "date_change";
+      payload: {
+        taskId: string;
+        taskIndex: number;
+        start: Date;
+        end: Date;
+      };
     }
   | {
       type: "delete_relation";
@@ -544,6 +551,7 @@ export interface DisplayOption {
 
 export interface Icons {
   renderAddIcon: () => ReactNode;
+  renderDragIndicatorIcon: () => ReactNode;
   renderClosedIcon: () => ReactNode;
   renderDeleteIcon: () => ReactNode;
   renderEditIcon: () => ReactNode;
@@ -551,10 +559,14 @@ export interface Icons {
   renderNoChildrenIcon: () => ReactNode;
 }
 
+export type AllowMoveTaskMethod = 'before' | 'inside' | 'after'
+export type AllowMoveTask = (task: TaskOrEmpty, method: AllowMoveTaskMethod) => boolean;
+
 export interface StylingOption {
   /**
    * Allow drag-n-drop of tasks in the table
    */
+  allowMoveTask?: AllowMoveTask;
   canMoveTasks?: boolean;
   canResizeColumns?: boolean;
   theme?: GanttPartialTheme;
@@ -652,6 +664,7 @@ export interface GanttProps extends EventOption, DisplayOption, StylingOption {
 
 export interface TaskListTableProps {
   canMoveTasks: boolean;
+  allowMoveTask: AllowMoveTask;
   childTasksMap: ChildByLevelMap;
   columns: readonly Column[];
   cutIdsMirror: Readonly<Record<string, true>>;
@@ -688,6 +701,7 @@ export interface TaskListTableProps {
 export interface TaskListHeaderProps {
   headerHeight: number;
   columns: readonly Column[];
+  canMoveTasks: boolean;
   canResizeColumns: boolean;
   onColumnResizeStart: (columnIndex: number, clientX: number) => void;
 }
@@ -867,7 +881,6 @@ export type ChangeInProgress = {
 export type GetMetadata = (task: TaskOrEmpty) => ChangeMetadata;
 
 export type ColumnData = {
-  canMoveTasks: boolean;
   dateSetup: DateSetup;
   depth: number;
   dependencies: Task[];

@@ -101,6 +101,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       "endToEnd",
     ],
     canMoveTasks = true,
+    allowMoveTask = () => true,
     canResizeColumns = true,
     checkIsHoliday: checkIsHolidayProp = defaultCheckIsHoliday,
     columns: columnsProp = undefined,
@@ -927,6 +928,12 @@ export const Gantt: React.FC<GanttProps> = props => {
         withSuggestions[taskIndex] = adjustedTask;
         onChangeTasks(withSuggestions, {
           type: "date_change",
+          payload: {
+            taskId: adjustedTask.id,
+            taskIndex: taskIndex,
+            start: adjustedTask.start,
+            end: adjustedTask.end,
+          }
         });
       }
     },
@@ -1788,6 +1795,7 @@ export const Gantt: React.FC<GanttProps> = props => {
     TaskListHeader,
     TaskListTable,
     canMoveTasks,
+    allowMoveTask,
     canResizeColumns,
     childTasksMap,
     columnsProp,

@@ -1,12 +1,6 @@
 import type { ReactNode } from "react";
 import React, { memo, useMemo, useRef, useState } from "react";
-
-import { checkHasChildren } from "../../../helpers/check-has-children";
-import {
-  Task,
-  TaskListTableProps,
-  TaskOrEmpty,
-} from "../../../types/public-types";
+import { TaskListTableProps, TaskOrEmpty } from "../../../types/public-types";
 import {
   Announcements,
   closestCenter,
@@ -30,7 +24,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import styles from "../task-list-table/task-list-table.module.css";
+import styles from "./task-list-sortable-table.module.css";
 import { sortableTreeKeyboardCoordinates } from "./keyboardCoordinates";
 import { getProjection } from "./utilities";
 import { SensorContext } from "./types";
@@ -41,33 +35,14 @@ import { TaskListSortableTableRow } from "../task-list-sortable-table-row";
 const indentationWidth = 50;
 
 const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
-  allowMoveTask,
-  canMoveTasks,
-  childTasksMap,
-  columns,
-  cutIdsMirror,
-  dateSetup,
-  dependencyMap,
-  distances,
+  getTableRowProps,
   fullRowHeight,
-  getTaskCurrentState,
-  handleAddTask,
-  handleDeleteTasks,
-  handleEditTask,
+  mapTaskToNestedIndex,
+  renderedIndexes,
+  tasks,
+  ganttRef,
   handleMoveTaskBefore,
   handleMoveTaskAfter,
-  handleMoveTasksInside,
-  handleOpenContextMenu,
-  icons,
-  isShowTaskNumbers,
-  mapTaskToNestedIndex,
-  onClick,
-  onExpanderClick,
-  renderedIndexes,
-  scrollToTask,
-  selectTaskOnMouseDown,
-  selectedIdsMirror,
-  tasks,
 }) => {
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
@@ -223,7 +198,9 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
       });
     }
 
-    document.body.style.setProperty("cursor", "grabbing");
+    if (ganttRef.current) {
+      ganttRef.current.style.setProperty("cursor", "grabbing");
+    }
   }
 
   function handleDragMove({ delta }: DragMoveEvent) {
@@ -262,7 +239,9 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
     setOffsetLeft(0);
     setCurrentPosition(null);
 
-    document.body.style.setProperty("cursor", "");
+    if (ganttRef.current) {
+      ganttRef.current.style.setProperty("cursor", "");
+    }
   }
 
   const renderedListWithOffset = useMemo(() => {
@@ -271,7 +250,6 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
     }
 
     const [start, end] = renderedIndexes;
-
     const renderedList: ReactNode[] = [];
 
     for (let index = start; index <= end; ++index) {
@@ -281,49 +259,10 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
         break;
       }
 
-      const { id, comparisonLevel = 1 } = task;
-
-      const indexesOnLevel = mapTaskToNestedIndex.get(comparisonLevel);
-
-      if (!indexesOnLevel) {
-        throw new Error(`Indexes are not found for level ${comparisonLevel}`);
-      }
-
-      const taskIndex = indexesOnLevel.get(id);
-
-      if (!taskIndex) {
-        throw new Error(`Index is not found for task ${id}`);
-      }
-
-      const [depth, indexStr] = taskIndex;
-
       renderedList.push(
         <TaskListSortableTableRow
-          columns={columns}
-          dateSetup={dateSetup}
-          dependencyMap={dependencyMap}
-          depth={depth}
-          distances={distances}
-          fullRowHeight={fullRowHeight}
-          getTaskCurrentState={getTaskCurrentState}
-          handleAddTask={handleAddTask}
-          handleDeleteTasks={handleDeleteTasks}
-          handleEditTask={handleEditTask}
-          handleOpenContextMenu={handleOpenContextMenu}
-          hasChildren={checkHasChildren(task, childTasksMap)}
-          icons={icons}
-          indexStr={indexStr}
-          isClosed={Boolean((task as Task)?.hideChildren)}
-          isCut={cutIdsMirror[id]}
-          isEven={index % 2 === 1}
-          isSelected={selectedIdsMirror[id]}
-          isShowTaskNumbers={isShowTaskNumbers}
-          onClick={onClick}
-          onExpanderClick={onExpanderClick}
-          scrollToTask={scrollToTask}
-          selectTaskOnMouseDown={selectTaskOnMouseDown}
-          task={task}
-          key={id}
+          {...getTableRowProps(task, index)}
+          key={task.id}
         />
       );
     }
@@ -339,36 +278,7 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
         {renderedList}
       </>
     );
-  }, [
-    renderedIndexes,
-    fullRowHeight,
-    renderedTasks,
-    mapTaskToNestedIndex,
-    canMoveTasks,
-    allowMoveTask,
-    columns,
-    dateSetup,
-    dependencyMap,
-    distances,
-    getTaskCurrentState,
-    handleAddTask,
-    handleDeleteTasks,
-    handleEditTask,
-    handleMoveTaskBefore,
-    handleMoveTaskAfter,
-    handleMoveTasksInside,
-    handleOpenContextMenu,
-    childTasksMap,
-    icons,
-    cutIdsMirror,
-    selectedIdsMirror,
-    isShowTaskNumbers,
-    onClick,
-    onExpanderClick,
-    scrollToTask,
-    selectTaskOnMouseDown,
-    tasks,
-  ]);
+  }, [renderedIndexes, fullRowHeight, renderedTasks, getTableRowProps]);
 
   return (
     <DndContext
@@ -396,13 +306,19 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
           {renderedListWithOffset}
         </div>
       </SortableContext>
-      {createPortal(
+      {ganttRef.current && createPortal(
         <DragOverlay dropAnimation={dropAnimation} modifiers={undefined}>
           {activeId ? (
-            <div style={{ height: 40, backgroundColor: "blue" }}>Test Drag</div>
+            <TaskListSortableTableRow
+              {...getTableRowProps(
+                renderedTasks.find(x => x.id === activeId),
+                renderedTasks.findIndex(x => x.id === activeId)
+              )}
+              isOverlay={true}
+            />
           ) : null}
         </DragOverlay>,
-        document.body
+        ganttRef.current
       )}
     </DndContext>
   );

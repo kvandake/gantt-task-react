@@ -5,10 +5,12 @@
 }
 
 .isAfter {
+    /*noinspection CssUnresolvedCustomProperty*/
+
     &:after {
         content: '';
         position: absolute;
-        background-color: #4c9ffe;
+        background-color: var(--gantt-table-hover-action-color);
         width: 100%;
         height: 2px;
         bottom: 0;
@@ -17,14 +19,30 @@
 }
 
 .isBefore {
+    /*noinspection CssUnresolvedCustomProperty*/
+
     &:after {
         content: '';
         position: absolute;
-        background-color: #4c9ffe;
+        background-color: var(--gantt-table-hover-action-color);
         width: 100%;
         height: 2px;
         top: 0;
         left: 0;
+    }
+}
+
+.isOverlay {
+    /*noinspection CssUnresolvedCustomProperty*/
+
+    &:after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        border: 1px solid var(--gantt-divider-color);
     }
 }
 
@@ -56,56 +74,4 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.taskListCellInner {
-    display: flex;
-    align-items: center;
-}
-
-.dropAfter {
-    position: absolute;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 8px;
-    color: transparent;
-}
-
-.dropAfterLighten {
-    border-radius: 6px;
-}
-
-.dropAfter::before {
-    content: "";
-    width: 12px;
-    height: 12px;
-    border-radius: 6px;
-    background-color: currentColor;
-}
-
-.dropBefore {
-    position: absolute;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    top: 0;
-    width: 100%;
-    height: 8px;
-    color: transparent;
-}
-
-.dropBeforeLighten {
-    border-radius: 6px;
-}
-
-.dropBefore::before {
-    content: "";
-    width: 12px;
-    height: 12px;
-    border-radius: 6px;
-    background-color: currentColor;
 }

@@ -1,5 +1,5 @@
 import type { MouseEvent, RefObject } from "react";
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 
 import {
   AllowMoveTask,
@@ -12,6 +12,7 @@ import {
   MapTaskToNestedIndex,
   OnResizeColumn,
   Task,
+  TaskListTableRowProps,
   TaskOrEmpty,
 } from "../../types/public-types";
 
@@ -21,6 +22,7 @@ import { TaskListTableHeaders } from "./task-list-table-headers";
 import { TaskListSortableTable } from "./task-list-sortable-table";
 import { TaskListTable } from "./task-list-table";
 import styles from "./task-list.module.css";
+import { checkHasChildren } from "../../helpers/check-has-children";
 
 export type TaskListProps = {
   ganttRef: RefObject<HTMLDivElement>;
@@ -114,6 +116,73 @@ const TaskListInner: React.FC<TaskListProps> = ({
     fullRowHeight
   );
 
+  const getTableRowProps = useCallback(
+    (task: TaskOrEmpty, index: number) => {
+      const { id, comparisonLevel = 1 } = task;
+      const indexesOnLevel = mapTaskToNestedIndex.get(comparisonLevel);
+      if (!indexesOnLevel) {
+        throw new Error(`Indexes are not found for level ${comparisonLevel}`);
+      }
+
+      const taskIndex = indexesOnLevel.get(id);
+
+      if (!taskIndex) {
+        throw new Error(`Index is not found for task ${id}`);
+      }
+
+      const [depth, indexStr] = taskIndex;
+
+      return {
+        columns: columns,
+        dateSetup: dateSetup,
+        dependencyMap: dependencyMap,
+        distances: distances,
+        fullRowHeight: fullRowHeight,
+        getTaskCurrentState: getTaskCurrentState,
+        handleAddTask: handleAddTask,
+        handleDeleteTasks: handleDeleteTasks,
+        handleEditTask: handleEditTask,
+        handleOpenContextMenu: handleOpenContextMenu,
+        hasChildren: checkHasChildren(task, childTasksMap),
+        icons: icons,
+        indexStr: indexStr,
+        isClosed: Boolean((task as Task)?.hideChildren),
+        isCut: cutIdsMirror[id],
+        isEven: index % 2 === 1,
+        isSelected: selectedIdsMirror[id],
+        isShowTaskNumbers: isShowTaskNumbers,
+        onClick: onClick,
+        onExpanderClick: onExpanderClick,
+        scrollToTask: scrollToTask,
+        selectTaskOnMouseDown: selectTaskOnMouseDown,
+        task: task,
+        depth: depth,
+      } as TaskListTableRowProps;
+    },
+    [
+      childTasksMap,
+      columns,
+      cutIdsMirror,
+      dateSetup,
+      dependencyMap,
+      distances,
+      fullRowHeight,
+      getTaskCurrentState,
+      handleAddTask,
+      handleDeleteTasks,
+      handleEditTask,
+      handleOpenContextMenu,
+      icons,
+      isShowTaskNumbers,
+      mapTaskToNestedIndex,
+      onClick,
+      onExpanderClick,
+      scrollToTask,
+      selectTaskOnMouseDown,
+      selectedIdsMirror,
+    ]
+  );
+
   const RenderTaskListTable = canMoveTasks
     ? TaskListSortableTable
     : TaskListTable;
@@ -157,6 +226,8 @@ const TaskListInner: React.FC<TaskListProps> = ({
               }}
             >
               <RenderTaskListTable
+                ganttRef={ganttRef}
+                getTableRowProps={getTableRowProps}
                 canMoveTasks={canMoveTasks}
                 allowMoveTask={allowMoveTask}
                 childTasksMap={childTasksMap}

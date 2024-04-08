@@ -52,6 +52,6 @@
 
 /*noinspection CssUnresolvedCustomProperty*/
 .resizer:hover {
-  background-color: var(--gantt-table-resize-hover-color);
+  background-color: var(--gantt-table-hover-action-color);
 }
 

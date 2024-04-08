@@ -9,6 +9,7 @@ import type { Locale as DateLocale } from "date-fns";
 
 import type { BarMoveAction, RelationMoveTarget } from "./gantt-task-actions";
 import { OptimizedListParams } from "../helpers/use-optimized-list";
+import { RefObject } from "react";
 
 export enum ViewMode {
   Hour = "Hour",
@@ -136,24 +137,21 @@ export interface ColorStyles {
   milestoneBackgroundCriticalColor: string;
   milestoneBackgroundSelectedColor: string;
   milestoneBackgroundSelectedCriticalColor: string;
-  tableEvenBackgroundColor: string;
   calendarHolidayColor: string;
-  tableDragTaskBackgroundColor: string;
   arrowHoverColor: string;
 
+  tableDragTaskBackgroundColor: string;
   tableSelectedTaskBackgroundColor: string;
+  tableActionColor: string;
+  tableDragIndicatorColor: string;
+  tableHoverActionColor: string;
+  tableEvenBackgroundColor: string;
+
   calendarTodayColor: string;
-
-
   contextMenuBoxShadow: string;
   contextMenuBgColor: string;
   contextMenuTextColor: string;
   tooltipBoxShadow: string;
-
-
-  tableActionColor: string;
-  tableDragIndicatorColor: string;
-  tableResizeHoverColor: string;
   scrollbarThumbColor: string;
 
   calendarStrokeColor: string;
@@ -661,6 +659,8 @@ export interface GanttProps extends EventOption, DisplayOption, StylingOption {
 }
 
 export interface TaskListTableProps {
+  ganttRef: RefObject<HTMLDivElement>;
+  getTableRowProps: (task: TaskOrEmpty, index: number) => TaskListTableRowProps;
   canMoveTasks: boolean;
   allowMoveTask: AllowMoveTask;
   childTasksMap: ChildByLevelMap;
@@ -695,6 +695,43 @@ export interface TaskListTableProps {
   taskListWidth: number;
   tasks: readonly TaskOrEmpty[];
 }
+
+export type TaskListTableRowProps = {
+  columns: readonly Column[];
+  dateSetup: DateSetup;
+  dependencyMap: DependencyMap;
+  depth: number;
+  distances: Distances;
+  fullRowHeight: number;
+  getTaskCurrentState: (task: Task) => Task;
+  handleAddTask: (task: Task) => void;
+  handleDeleteTasks: (task: TaskOrEmpty[]) => void;
+  handleEditTask: (task: TaskOrEmpty) => void;
+  // eslint-disable-next-line
+  moveHandleProps?: any;
+  moveOverPosition?: InsertTaskPosition;
+  handleOpenContextMenu: (
+    task: TaskOrEmpty,
+    clientX: number,
+    clientY: number
+  ) => void;
+  hasChildren: boolean;
+  icons?: Partial<Icons>;
+  indexStr: string;
+  isDragging?: boolean;
+  isOverlay?: boolean;
+  isClosed: boolean;
+  isCut: boolean;
+  isEven: boolean;
+  isSelected: boolean;
+  isShowTaskNumbers: boolean;
+  onClick: (task: TaskOrEmpty) => void;
+  onExpanderClick: (task: Task) => void;
+  scrollToTask: (task: Task) => void;
+  selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
+  style?: CSSProperties;
+  task: TaskOrEmpty;
+};
 
 export interface TaskListHeaderProps {
   headerHeight: number;

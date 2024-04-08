@@ -45,7 +45,7 @@ export type TaskItemProps = {
   distances: Distances;
   taskHeight: number;
   taskHalfHeight: number;
-  isProgressChangeable: boolean;
+  isProgressChangeable: (task: Task) => boolean;
   isDateChangeable: boolean;
   authorizedRelations: RelationKind[];
   isRelationChangeable: boolean;

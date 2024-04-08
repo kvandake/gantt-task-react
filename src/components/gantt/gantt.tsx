@@ -146,6 +146,7 @@ export const Gantt: React.FC<GanttProps> = props => {
     viewDate,
     viewMode = ViewMode.Day,
     locale: clientLocale,
+    isProgressChangeable,
   } = props;
   const ganttSVGRef = useRef<SVGSVGElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -929,7 +930,7 @@ export const Gantt: React.FC<GanttProps> = props => {
             taskIndex: taskIndex,
             start: adjustedTask.start,
             end: adjustedTask.end,
-          }
+          },
         });
       }
     },
@@ -1145,10 +1146,6 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const handleMoveTaskBefore = useCallback(
     (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => {
-      if (!onMoveTaskBefore && !onChangeTasks) {
-        return;
-      }
-
       onChangeTooltipTask(null, null);
 
       const [dependentTasks, taskIndexes, parents, suggestions] = getMetadata({
@@ -1738,6 +1735,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskYOffset,
       timeStep,
       visibleTasksMirror,
+      isProgressChangeable,
     }),
     [
       additionalLeftSpace,
@@ -1784,6 +1782,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskYOffset,
       timeStep,
       visibleTasksMirror,
+      isProgressChangeable,
     ]
   );
 

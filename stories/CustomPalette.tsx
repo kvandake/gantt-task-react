@@ -143,6 +143,7 @@ export const CustomPalette: React.FC<AppProps> = props => {
       onWheel={handleWheel}
       onChangeExpandState={onChangeExpandState}
       enableTableListContextMenu={1}
+      isProgressChangeable={() => false}
       allowMoveTask={(_, method) => {
         return method !== "inside";
       }}

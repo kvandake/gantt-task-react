@@ -73,6 +73,7 @@ export type TaskGanttContentProps = {
   visibleTasksMirror: Readonly<Record<string, true>>;
   taskHeight: number;
   taskHalfHeight: number;
+  isProgressChangeable?: (task: Task) => boolean;
 };
 
 export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
@@ -114,6 +115,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
   taskHeight,
   taskHalfHeight,
   visibleTasksMirror,
+  isProgressChangeable = task => !task.isDisabled,
 }) => {
   const renderedHolidays = useMemo(() => {
     const { columnWidth } = distances;
@@ -255,7 +257,7 @@ export const TaskGanttContent: React.FC<TaskGanttContentProps> = ({
             distances={distances}
             taskHeight={taskHeight}
             taskHalfHeight={taskHalfHeight}
-            isProgressChangeable={!task.isDisabled}
+            isProgressChangeable={isProgressChangeable}
             isDateChangeable={!task.isDisabled}
             isRelationChangeable={!task.isDisabled}
             authorizedRelations={authorizedRelations}

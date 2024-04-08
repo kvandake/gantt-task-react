@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { memo, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useMemo, useRef, useState } from "react";
 import { TaskListTableProps, TaskOrEmpty } from "../../../types/public-types";
 import {
   Announcements,
@@ -31,19 +31,47 @@ import { SensorContext } from "./types";
 import { createPortal } from "react-dom";
 import { CSS } from "@dnd-kit/utilities";
 import { TaskListSortableTableRow } from "../task-list-sortable-table-row";
+import {
+  restrictToVerticalAxis,
+  restrictToFirstScrollableAncestor,
+} from "@dnd-kit/modifiers";
 
 const indentationWidth = 50;
+const dropAnimation: DropAnimation = {
+  keyframes({ transform }) {
+    return [
+      { transform: CSS.Transform.toString(transform.initial) },
+      {
+        transform: CSS.Transform.toString({
+          scaleX: 0.98,
+          scaleY: 0.98,
+          x: transform.final.x - 10,
+          y: transform.final.y - 10,
+        }),
+      },
+    ];
+  },
+  sideEffects: defaultDropAnimationSideEffects({
+    className: {
+      active: "active",
+    },
+  }),
+};
 
-const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
-  getTableRowProps,
-  fullRowHeight,
-  mapTaskToNestedIndex,
-  renderedIndexes,
-  tasks,
-  ganttRef,
-  handleMoveTaskBefore,
-  handleMoveTaskAfter,
-}) => {
+const TaskListSortableTableDefaultInner: React.FC<
+  TaskListTableProps
+> = props => {
+  const {
+    getTableRowProps,
+    mapTaskToNestedIndex,
+    renderedIndexes,
+    tasks,
+    ganttRef,
+    fullRowHeight,
+    handleMoveTaskBefore,
+    handleMoveTaskAfter,
+    onExpanderClick,
+  } = props;
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [currentPosition, setCurrentPosition] = useState<{
@@ -91,18 +119,54 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
   };
 
   const projected = getProjected();
+  const measuring = useMemo(
+    () => ({
+      droppable: {
+        strategy: MeasuringStrategy.Always,
+      },
+    }),
+    []
+  );
 
-  const measuring = {
-    droppable: {
-      strategy: MeasuringStrategy.Always,
-    },
-  };
+  const renderedListWithOffset = useMemo(() => {
+    if (!renderedIndexes) {
+      return null;
+    }
 
-  function getMovementAnnouncement(
+    const [start, end] = renderedIndexes;
+    const renderedList: ReactNode[] = [];
+    for (let index = start; index <= end; ++index) {
+      const task = renderedTasks[index];
+      if (!task) {
+        break;
+      }
+
+      renderedList.push(
+        <TaskListSortableTableRow
+          {...getTableRowProps(task, index)}
+          key={task.id}
+        />
+      );
+    }
+
+    return (
+      <>
+        <div
+          style={{
+            height: fullRowHeight * start,
+          }}
+        />
+
+        {renderedList}
+      </>
+    );
+  }, [renderedIndexes, fullRowHeight, renderedTasks, getTableRowProps]);
+
+  const getMovementAnnouncement = (
     eventName: string,
     activeId: UniqueIdentifier,
     overId?: UniqueIdentifier
-  ) {
+  ) => {
     if (overId && projected) {
       if (eventName !== "onDragEnd") {
         if (
@@ -155,28 +219,36 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
     }
 
     return null;
-  }
-
-  const announcements: Announcements = {
-    onDragStart({ active }) {
-      return `Picked up ${active.id}.`;
-    },
-    onDragMove({ active, over }) {
-      return getMovementAnnouncement("onDragMove", active.id, over?.id);
-    },
-    onDragOver({ active, over }) {
-      return getMovementAnnouncement("onDragOver", active.id, over?.id);
-    },
-    onDragEnd({ active, over }) {
-      return getMovementAnnouncement("onDragEnd", active.id, over?.id);
-    },
-    onDragCancel({ active }) {
-      return `Moving was cancelled. ${active.id} was dropped in its original position.`;
-    },
   };
 
+  const announcements: Announcements = useMemo(
+    () => ({
+      onDragStart({ active }) {
+        return `Picked up ${active.id}.`;
+      },
+      onDragMove({ active, over }) {
+        return getMovementAnnouncement("onDragMove", active.id, over?.id);
+      },
+      onDragOver({ active, over }) {
+        return getMovementAnnouncement("onDragOver", active.id, over?.id);
+      },
+      onDragEnd({ active, over }) {
+        return getMovementAnnouncement("onDragEnd", active.id, over?.id);
+      },
+      onDragCancel({ active }) {
+        return `Moving was cancelled. ${active.id} was dropped in its original position.`;
+      },
+    }),
+    [getMovementAnnouncement]
+  );
+
   const [coordinateGetter] = useState(() =>
-    sortableTreeKeyboardCoordinates(sensorContext, true, 50, getTaskDepth)
+    sortableTreeKeyboardCoordinates(
+      sensorContext,
+      true,
+      indentationWidth,
+      getTaskDepth
+    )
   );
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -185,100 +257,69 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
     })
   );
 
-  function handleDragStart({ active: { id: activeId } }: DragStartEvent) {
-    setActiveId(activeId);
-    setOverId(activeId);
+  const handleDragStart = useCallback(
+    ({ active: { id: activeId } }: DragStartEvent) => {
+      setActiveId(activeId);
+      setOverId(activeId);
 
-    const activeItem = renderedTasks.find(({ id }) => id === activeId);
+      const activeItem = renderedTasks.find(({ id }) => id === activeId);
 
-    if (activeItem) {
-      setCurrentPosition({
-        parent: activeItem.parent,
-        overId: activeId,
-      });
-    }
+      if (activeItem) {
+        setCurrentPosition({
+          parent: activeItem.parent,
+          overId: activeId,
+        });
+        if ("hideChildren" in activeItem && !activeItem.hideChildren) {
+          onExpanderClick(activeItem);
+        }
+      }
 
-    if (ganttRef.current) {
-      ganttRef.current.style.setProperty("cursor", "grabbing");
-    }
-  }
+      if (ganttRef.current) {
+        ganttRef.current.style.setProperty("cursor", "grabbing");
+      }
+    },
+    [ganttRef, onExpanderClick, renderedTasks]
+  );
 
-  function handleDragMove({ delta }: DragMoveEvent) {
+  const handleDragMove = useCallback(({ delta }: DragMoveEvent) => {
     setOffsetLeft(delta.x);
-  }
+  }, []);
 
-  function handleDragOver({ over }: DragOverEvent) {
+  const handleDragOver = useCallback(({ over }: DragOverEvent) => {
     setOverId(over?.id ?? null);
-  }
+  }, []);
 
-  function handleDragEnd({ active, over }: DragEndEvent) {
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
     resetState();
 
     if (projected && over) {
-      const { depth, parent } = projected || {};
+      // const { depth, parent } = projected || {};
       const clonedItems = [...renderedTasks];
+      const activeTask = clonedItems.find(({ id }) => id === active.id);
+      const overTask = clonedItems.find(({ id }) => id === over.id);
       const overIndex = clonedItems.findIndex(({ id }) => id === over.id);
       const activeIndex = clonedItems.findIndex(({ id }) => id === active.id);
-      const activeTreeItem = clonedItems[activeIndex];
-
-      // clonedItems[activeIndex] = { ...activeTreeItem, depth, parentId };
-      // const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
-      // const newItems = buildTree(sortedItems);
-
-      // setItems(newItems);
+      if (activeIndex >= overIndex) {
+        handleMoveTaskBefore(overTask, activeTask);
+      } else {
+        handleMoveTaskAfter(overTask, activeTask);
+      }
     }
-  }
+  };
 
-  function handleDragCancel() {
-    resetState();
-  }
-
-  function resetState() {
+  const resetState = useCallback(() => {
     setOverId(null);
     setActiveId(null);
     setOffsetLeft(0);
     setCurrentPosition(null);
-
     if (ganttRef.current) {
       ganttRef.current.style.setProperty("cursor", "");
     }
-  }
+  }, [ganttRef]);
 
-  const renderedListWithOffset = useMemo(() => {
-    if (!renderedIndexes) {
-      return null;
-    }
-
-    const [start, end] = renderedIndexes;
-    const renderedList: ReactNode[] = [];
-
-    for (let index = start; index <= end; ++index) {
-      const task = renderedTasks[index];
-
-      if (!task) {
-        break;
-      }
-
-      renderedList.push(
-        <TaskListSortableTableRow
-          {...getTableRowProps(task, index)}
-          key={task.id}
-        />
-      );
-    }
-
-    return (
-      <>
-        <div
-          style={{
-            height: fullRowHeight * start,
-          }}
-        />
-
-        {renderedList}
-      </>
-    );
-  }, [renderedIndexes, fullRowHeight, renderedTasks, getTableRowProps]);
+  const handleDragCancel = useCallback(() => {
+    resetState();
+  }, [resetState]);
 
   return (
     <DndContext
@@ -306,43 +347,29 @@ const TaskListSortableTableDefaultInner: React.FC<TaskListTableProps> = ({
           {renderedListWithOffset}
         </div>
       </SortableContext>
-      {ganttRef.current && createPortal(
-        <DragOverlay dropAnimation={dropAnimation} modifiers={undefined}>
-          {activeId ? (
-            <TaskListSortableTableRow
-              {...getTableRowProps(
-                renderedTasks.find(x => x.id === activeId),
-                renderedTasks.findIndex(x => x.id === activeId)
-              )}
-              isOverlay={true}
-            />
-          ) : null}
-        </DragOverlay>,
-        ganttRef.current
-      )}
+      {ganttRef.current &&
+        createPortal(
+          <DragOverlay
+            dropAnimation={dropAnimation}
+            modifiers={[
+              restrictToVerticalAxis,
+              restrictToFirstScrollableAncestor,
+            ]}
+          >
+            {activeId ? (
+              <TaskListSortableTableRow
+                {...getTableRowProps(
+                  renderedTasks.find(x => x.id === activeId),
+                  renderedTasks.findIndex(x => x.id === activeId)
+                )}
+                isOverlay={true}
+              />
+            ) : null}
+          </DragOverlay>,
+          ganttRef.current
+        )}
     </DndContext>
   );
-};
-
-const dropAnimation: DropAnimation = {
-  keyframes({ transform }) {
-    return [
-      { transform: CSS.Transform.toString(transform.initial) },
-      {
-        transform: CSS.Transform.toString({
-          scaleX: 0.98,
-          scaleY: 0.98,
-          x: transform.final.x - 10,
-          y: transform.final.y - 10,
-        }),
-      },
-    ];
-  },
-  sideEffects: defaultDropAnimationSideEffects({
-    className: {
-      active: "active",
-    },
-  }),
 };
 
 export const TaskListSortableTable = memo(TaskListSortableTableDefaultInner);

@@ -25,12 +25,13 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       handleEditTask,
       handleOpenContextMenu,
       hasChildren,
-      icons = undefined,
+      icons,
       indexStr,
       isClosed,
       isCut,
       isEven,
       isSelected,
+      isDragging,
       isShowTaskNumbers,
       onClick,
       onExpanderClick,
@@ -150,12 +151,12 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       if (moveOverPosition === "before") {
         classNames.push(styles.isBefore);
       }
-      if (isOverlay) {
+      if (isOverlay && !isDragging) {
         classNames.push(styles.isOverlay);
       }
 
       return classNames.join(" ");
-    }, [isOverlay, isCut, moveOverPosition]);
+    }, [isCut, moveOverPosition, isOverlay, isDragging]);
 
     return (
       <div

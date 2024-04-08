@@ -169,7 +169,11 @@ export interface DateFormats {
   hourBottomHeaderFormat: string;
   monthBottomHeaderFormat: string;
   monthTopHeaderFormat: string;
-  weekBottomHeader: (date: Date, weekNumber: number, locale?: DateLocale) => string;
+  weekBottomHeader: (
+    date: Date,
+    weekNumber: number,
+    locale?: DateLocale
+  ) => string;
 }
 
 export interface Distances {
@@ -517,6 +521,7 @@ export interface EventOption {
 
 export interface DisplayOption {
   viewMode?: ViewMode;
+  isProgressChangeable: (task: Task) => boolean;
   isDeleteDependencyOnDoubleClick?: boolean;
   /**
    * Display offsets from start on timeline instead of dates
@@ -557,8 +562,11 @@ export interface Icons {
   renderNoChildrenIcon: () => ReactNode;
 }
 
-export type InsertTaskPosition = 'before' | 'inside' | 'after'
-export type AllowMoveTask = (task: TaskOrEmpty, method: InsertTaskPosition) => boolean;
+export type InsertTaskPosition = "before" | "inside" | "after";
+export type AllowMoveTask = (
+  task: TaskOrEmpty,
+  method: InsertTaskPosition
+) => boolean;
 
 export interface StylingOption {
   /**

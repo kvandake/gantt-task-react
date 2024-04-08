@@ -521,7 +521,7 @@ export interface EventOption {
 
 export interface DisplayOption {
   viewMode?: ViewMode;
-  isProgressChangeable: (task: Task) => boolean;
+  isProgressChangeable?: (task: Task) => boolean;
   isDeleteDependencyOnDoubleClick?: boolean;
   /**
    * Display offsets from start on timeline instead of dates

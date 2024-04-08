@@ -93,7 +93,7 @@ const TaskListSortableTableDefaultInner: React.FC<
     offset: offsetLeft,
   });
 
-  const getTaskDepth = (taskId: string | UniqueIdentifier): number => {
+  const getTaskDepth = useCallback((taskId: string | UniqueIdentifier): number => {
     const activeTask = renderedTasks.find(task => task.id === taskId);
     const activeTaskComparisonLevel = activeTask.comparisonLevel || 1;
     const [activeTaskDepth] = mapTaskToNestedIndex
@@ -101,7 +101,7 @@ const TaskListSortableTableDefaultInner: React.FC<
       .get(activeId.toString());
 
     return activeTaskDepth || 1;
-  };
+  }, [activeId, mapTaskToNestedIndex, renderedTasks]);
 
   const getProjected = () => {
     if (!activeId || !overId) {
@@ -162,7 +162,7 @@ const TaskListSortableTableDefaultInner: React.FC<
     );
   }, [renderedIndexes, fullRowHeight, renderedTasks, getTableRowProps]);
 
-  const getMovementAnnouncement = (
+  const getMovementAnnouncement = useCallback((
     eventName: string,
     activeId: UniqueIdentifier,
     overId?: UniqueIdentifier
@@ -219,7 +219,7 @@ const TaskListSortableTableDefaultInner: React.FC<
     }
 
     return null;
-  };
+  }, [currentPosition, getTaskDepth, projected, renderedTasks]);
 
   const announcements: Announcements = useMemo(
     () => ({
@@ -299,9 +299,9 @@ const TaskListSortableTableDefaultInner: React.FC<
       const overTask = clonedItems.find(({ id }) => id === over.id);
       const overIndex = clonedItems.findIndex(({ id }) => id === over.id);
       const activeIndex = clonedItems.findIndex(({ id }) => id === active.id);
-      if (activeIndex >= overIndex) {
+      if (activeIndex > overIndex) {
         handleMoveTaskBefore(overTask, activeTask);
-      } else {
+      } else if (activeIndex < overIndex) {
         handleMoveTaskAfter(overTask, activeTask);
       }
     }

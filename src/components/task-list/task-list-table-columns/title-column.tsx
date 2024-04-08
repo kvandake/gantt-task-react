@@ -9,6 +9,7 @@ import { ExpandLessIcon } from "../../icons/expand-less-icon";
 const getExpanderSymbol = (
   hasChildren: boolean,
   isClosed: boolean,
+  iconWidth: number,
   icons: Partial<Icons> | undefined
 ) => {
   if (!hasChildren) {
@@ -19,14 +20,14 @@ const getExpanderSymbol = (
     return icons?.renderClosedIcon ? (
       icons.renderClosedIcon()
     ) : (
-      <ExpandMoreIcon />
+      <ExpandMoreIcon style={{ width: iconWidth }} />
     );
   }
 
   return icons?.renderOpenedIcon ? (
     icons.renderOpenedIcon()
   ) : (
-    <ExpandLessIcon />
+    <ExpandLessIcon style={{ width: iconWidth }} />
   );
 };
 
@@ -46,8 +47,8 @@ export const TitleColumn: React.FC<ColumnProps> = ({
   const { name } = task;
 
   const expanderSymbol = useMemo(
-    () => getExpanderSymbol(hasChildren, isClosed, icons),
-    [hasChildren, isClosed, icons]
+    () => getExpanderSymbol(hasChildren, isClosed, expandIconWidth, icons),
+    [hasChildren, isClosed, expandIconWidth, icons]
   );
 
   const title = isShowTaskNumbers ? `${indexStr} ${name}` : name;
@@ -72,9 +73,6 @@ export const TitleColumn: React.FC<ColumnProps> = ({
           !hasChildren ? styles.taskListEmptyExpander : ""
         }`}
         onClick={onClick}
-        style={{
-          width: expandIconWidth,
-        }}
       >
         {expanderSymbol}
       </div>

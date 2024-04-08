@@ -52,7 +52,7 @@ export const useTableListResize = (
     ];
   }, [actionColumnWidth, columnsBuilder, dateCellWidth, dependenciesCellWidth, locale, titleCellWidth])
 
-  const extraWidth = useMemo(() => canMoveTasks ? 32 : 0, [canMoveTasks])
+  const extraWidth = useMemo(() => canMoveTasks ? 26 : 0, [canMoveTasks])
   const [columnsState, setColumns] = useState<readonly Column[]>(clientColumns || defaultColumns);
 
   useEffect(() => {

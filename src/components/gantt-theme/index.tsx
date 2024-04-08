@@ -90,6 +90,7 @@ export const GanttThemeProvider: React.FC<GanttThemeProps> = ({
       "--gantt-table-even-background-color": colors.tableEvenBackgroundColor,
       "--gantt-table-drag-task-background-color":
         colors.tableDragTaskBackgroundColor,
+      "--gantt-table-drag-column-width": '26px',
 
       "--gantt-scrollbar-thumb-color": colors.scrollbarThumbColor,
       "--gantt-calendar-stroke-color": colors.calendarStrokeColor,

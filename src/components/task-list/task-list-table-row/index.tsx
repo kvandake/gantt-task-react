@@ -37,11 +37,10 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       onExpanderClick,
       scrollToTask,
       selectTaskOnMouseDown,
-      style = undefined,
+      style,
       task,
       moveHandleProps,
       isOverlay,
-      // isDragging,
       moveOverPosition,
     } = props;
     const { id, comparisonLevel = 1 } = task;
@@ -142,9 +141,6 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
 
     const rowClassName = useMemo(() => {
       const classNames = [styles.taskListTableRow];
-      if (isCut) {
-        classNames.push(styles.isCut);
-      }
       if (moveOverPosition === "after") {
         classNames.push(styles.isAfter);
       }
@@ -153,6 +149,10 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       }
       if (isOverlay && !isDragging) {
         classNames.push(styles.isOverlay);
+      }
+
+      if (isCut) {
+        classNames.push(styles.isCut);
       }
 
       return classNames.join(" ");

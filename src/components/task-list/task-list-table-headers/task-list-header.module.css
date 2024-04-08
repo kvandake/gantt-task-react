@@ -10,10 +10,11 @@
   list-style: none;
 }
 
+/*noinspection CssUnresolvedCustomProperty*/
 .ganttTable_HeaderMoveTask {
   display: table-cell;
-  min-width: 32px;
-  width: 32px;
+  min-width: var(--gantt-table-drag-column-width);
+  width: var(--gantt-table-drag-column-width);
 }
 
 .ganttTable_HeaderSeparator {

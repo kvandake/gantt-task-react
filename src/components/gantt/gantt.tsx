@@ -351,7 +351,6 @@ export const Gantt: React.FC<GanttProps> = props => {
     resetSelectedTasks,
     selectTaskOnMouseDown,
     selectedIdsMirror,
-    toggleTask,
   } = useSelection(taskToRowIndexMap, rowIndexToTaskMap, checkTaskIdExists);
 
   const [startDate, minTaskDate, datesLength] = useMemo(
@@ -462,7 +461,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const { contextMenu, handleCloseContextMenu, handleOpenContextMenu } =
-    useContextMenu(wrapperRef, toggleTask, scrollToTask);
+    useContextMenu(wrapperRef, scrollToTask);
 
   const [dependencyMap, dependentMap, dependencyMarginsMap] = useMemo(
     () =>

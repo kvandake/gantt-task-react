@@ -10,14 +10,14 @@ import {
   ViewMode,
 } from "../src";
 
-import { initTasks, onAddTask, onEditTask } from "./helper";
+import { initTasksWithoutProject, onAddTask, onEditTask } from "./helper";
 
 type AppProps = {
   ganttHeight?: number;
 };
 
 export const CustomPalette: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasks());
+  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasksWithoutProject());
   const [viewMode, setView] = React.useState<ViewMode>(ViewMode.Day);
   const columnsBuilder = useTaskListColumnsBuilder();
   const customTheme = useMemo(() => {

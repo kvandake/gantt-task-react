@@ -345,6 +345,10 @@ export type FixPosition = (
 export type OnChangeTasksAction =
   | {
       type: "add_tasks";
+      payload: {
+        parent: TaskOrEmpty;
+        descendants: readonly TaskOrEmpty[];
+      }
     }
   | {
       type: "date_change";
@@ -636,7 +640,7 @@ export interface GanttLocale {
   };
 }
 
-export interface GanttProps extends EventOption, DisplayOption, StylingOption {
+export interface GanttProps extends EventOption, DisplayOption, StylingOption, GanttActionsOption {
   /**
    * Check is current date holiday
    * @param date the date
@@ -664,6 +668,10 @@ export interface GanttProps extends EventOption, DisplayOption, StylingOption {
    */
   isAdjustToWorkingDates?: boolean;
   tasks: readonly TaskOrEmpty[];
+}
+
+export interface GanttActionsOption {
+  allowMoveTaskBar?: (action: BarMoveAction, task: TaskOrEmpty) => boolean;
 }
 
 export interface TaskListTableProps {

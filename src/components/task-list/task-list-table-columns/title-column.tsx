@@ -20,14 +20,14 @@ const getExpanderSymbol = (
     return icons?.renderClosedIcon ? (
       icons.renderClosedIcon()
     ) : (
-      <ExpandMoreIcon style={{ width: iconWidth }} />
+      <ExpandMoreIcon width={iconWidth} style={{ verticalAlign: "middle" }} />
     );
   }
 
   return icons?.renderOpenedIcon ? (
     icons.renderOpenedIcon()
   ) : (
-    <ExpandLessIcon style={{ width: iconWidth }} />
+    <ExpandLessIcon width={iconWidth} style={{ verticalAlign: "middle" }} />
   );
 };
 
@@ -69,7 +69,7 @@ export const TitleColumn: React.FC<ColumnProps> = ({
       title={title}
     >
       <div
-        className={`${styles.taskListExpander} ${
+        className={`gantt-expander ${styles.taskListExpander} ${
           !hasChildren ? styles.taskListEmptyExpander : ""
         }`}
         onClick={onClick}

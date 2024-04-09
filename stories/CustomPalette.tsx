@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { FC, useCallback, useMemo, useState } from "react";
 
 import {
+  ColumnProps,
   Gantt,
   GanttTheme,
   OnChangeTasks,
@@ -16,8 +17,25 @@ type AppProps = {
   ganttHeight?: number;
 };
 
+const DescriptionColumn: FC<ColumnProps> = ({ data }) => {
+  if (data.task.type === "task") {
+    return data.task.payload?.description;
+  }
+
+  return null;
+};
+
 export const CustomPalette: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasksWithoutProject());
+  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(() => {
+    const initTasks = initTasksWithoutProject();
+    const firstTask = initTasks[0];
+    if (firstTask.type === "task") {
+      firstTask.payload = {
+        description: "First Description 1",
+      };
+    }
+    return initTasks;
+  });
   const [viewMode, setView] = React.useState<ViewMode>(ViewMode.Day);
   const columnsBuilder = useTaskListColumnsBuilder();
   const customTheme = useMemo(() => {
@@ -39,6 +57,12 @@ export const CustomPalette: React.FC<AppProps> = props => {
   const columns = useMemo(() => {
     return [
       columnsBuilder.createNameColumn("Name", 200),
+      {
+        id: "Description",
+        title: "Description",
+        width: 60,
+        component: DescriptionColumn,
+      },
       columnsBuilder.createStartDateColumn("Start Date", 130),
       columnsBuilder.createEndDateColumn("End Date", 130),
     ];

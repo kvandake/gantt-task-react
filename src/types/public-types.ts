@@ -236,6 +236,7 @@ export interface Task {
   hideChildren?: boolean;
   displayOrder?: number;
   comparisonLevel?: number;
+  payload?: Record<string, string>;
 }
 
 export interface EmptyTask {

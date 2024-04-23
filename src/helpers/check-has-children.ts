@@ -1,7 +1,7 @@
-import { ChildByLevelMap, TaskOrEmpty } from "../types";
+import { ChildByLevelMap, RenderTask } from "../types";
 
 export const checkHasChildren = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   childTasksMap: ChildByLevelMap
 ) => {
   const { id, comparisonLevel = 1 } = task;

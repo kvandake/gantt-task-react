@@ -1,6 +1,6 @@
-import { TaskOrEmpty } from "../types";
+import { RenderTask } from "../types";
 
-export const sortTasks = (taskA: TaskOrEmpty, taskB: TaskOrEmpty) => {
+export const sortTasks = (taskA: RenderTask, taskB: RenderTask) => {
   const orderA = taskA.displayOrder || Number.MAX_VALUE;
   const orderB = taskB.displayOrder || Number.MAX_VALUE;
 

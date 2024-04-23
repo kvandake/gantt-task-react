@@ -1,9 +1,9 @@
-import type { ChildByLevelMap, TaskOrEmpty } from "../types";
+import type { ChildByLevelMap, RenderTask } from "../types";
 
 const fillDescendants = (
-  res: TaskOrEmpty[],
-  task: TaskOrEmpty,
-  childAtLevelMap: Map<string, TaskOrEmpty[]>
+  res: RenderTask[],
+  task: RenderTask,
+  childAtLevelMap: Map<string, RenderTask[]>
 ) => {
   res.push(task);
 
@@ -19,10 +19,10 @@ const fillDescendants = (
 };
 
 export const getTasksWithDescendants = (
-  parentTasks: TaskOrEmpty[],
+  parentTasks: RenderTask[],
   childByLevelMap: ChildByLevelMap
 ) => {
-  const res: TaskOrEmpty[] = [];
+  const res: RenderTask[] = [];
 
   parentTasks.forEach(task => {
     const { comparisonLevel = 1 } = task;
@@ -36,7 +36,7 @@ export const getTasksWithDescendants = (
 
       fillDescendants(res, task, childAtLevelMap);
     } else {
-      fillDescendants(res, task, new Map<string, TaskOrEmpty[]>());
+      fillDescendants(res, task, new Map<string, RenderTask[]>());
     }
   });
 

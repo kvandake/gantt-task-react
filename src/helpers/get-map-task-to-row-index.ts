@@ -1,16 +1,16 @@
-import type { GlobalRowIndexToTaskMap, RowIndexToTaskMap, TaskOrEmpty, TaskToRowIndexMap } from "../types";
+import type { GlobalRowIndexToTaskMap, RowIndexToTaskMap, RenderTask, TaskToRowIndexMap } from "../types";
 
 /**
  * @param visibleTasks
  * @param comparisonLevels Number of comparison levels
  */
 export const getMapTaskToRowIndex = (
-  visibleTasks: readonly TaskOrEmpty[],
+  visibleTasks: readonly RenderTask[],
   comparisonLevels: number
 ): [TaskToRowIndexMap, RowIndexToTaskMap, GlobalRowIndexToTaskMap] => {
   const taskToRowIndexRes = new Map<number, Map<string, number>>();
-  const rowIndexToTaskRes = new Map<number, Map<number, TaskOrEmpty>>();
-  const globalIndexToTaskRes = new Map<number, TaskOrEmpty>();
+  const rowIndexToTaskRes = new Map<number, Map<number, RenderTask>>();
+  const globalIndexToTaskRes = new Map<number, RenderTask>();
 
   const indexesByLevels: Record<string, number> = {};
 
@@ -30,7 +30,7 @@ export const getMapTaskToRowIndex = (
     taskToRowIndexRes.set(comparisonLevel, indexesMapByLevel);
 
     const rowIndexToTaskAtLevelMap =
-      rowIndexToTaskRes.get(comparisonLevel) || new Map<number, TaskOrEmpty>();
+      rowIndexToTaskRes.get(comparisonLevel) || new Map<number, RenderTask>();
     rowIndexToTaskAtLevelMap.set(index, task);
     rowIndexToTaskRes.set(comparisonLevel, rowIndexToTaskAtLevelMap);
 

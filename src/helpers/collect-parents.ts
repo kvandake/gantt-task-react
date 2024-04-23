@@ -1,7 +1,7 @@
-import { Task, TaskMapByLevel, TaskOrEmpty } from "../types";
+import { Task, TaskMapByLevel, RenderTask } from "../types";
 
 export const collectParents = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   tasksMap: TaskMapByLevel
 ): Task[] => {
   /**

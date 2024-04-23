@@ -1,8 +1,8 @@
-import { Task, TaskMapByLevel, TaskOrEmpty } from "../types";
+import { Task, TaskMapByLevel, RenderTask } from "../types";
 
 export const checkIsDescendant = (
   maybeParent: Task,
-  maybeDescendant: TaskOrEmpty,
+  maybeDescendant: RenderTask,
   tasksMap: TaskMapByLevel
 ) => {
   /**

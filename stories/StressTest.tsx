@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { addDays } from "date-fns";
 
-import { Gantt, OnCommitTasks, Task, TaskOrEmpty } from "../src";
+import { Gantt, OnCommitTasks, Task, RenderTask } from "../src";
 
 import { onAddTask, onEditTask } from "./helper";
 
@@ -121,7 +121,7 @@ export const StressTest: React.FC<AppProps> = ({
   numberOfSubtasks,
   depth,
 }) => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(() =>
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(() =>
     initTasks(numberOfRoots, numberOfSubtasks, depth)
   );
 
@@ -163,7 +163,7 @@ export const StressTest: React.FC<AppProps> = ({
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 

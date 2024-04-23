@@ -9,7 +9,7 @@ import type {
   ChildByLevelMap,
   Task,
   TaskMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
 } from "../../types";
 import { getTasksWithDescendants } from "../../selected-tasks/get-tasks-with-descendants";
 
@@ -18,9 +18,9 @@ const createGetters = (
   tasksMap: TaskMapByLevel,
   childTasksMap: ChildByLevelMap
 ) => {
-  let selectedTasks: TaskOrEmpty[] | null = null;
-  let parentTasks: TaskOrEmpty[] | null = null;
-  let tasksWithDescendants: TaskOrEmpty[] | null = null;
+  let selectedTasks: RenderTask[] | null = null;
+  let parentTasks: RenderTask[] | null = null;
+  let tasksWithDescendants: RenderTask[] | null = null;
 
   const getSelectedTasksWithCache = () => {
     if (selectedTasks) {
@@ -70,15 +70,15 @@ type UseHandleActionParams = {
   childTasksMap: ChildByLevelMap;
   copyIdsMirror: Readonly<Record<string, true>>;
   copySelectedTasks: () => void;
-  copyTask: (task: TaskOrEmpty) => void;
+  copyTask: (task: RenderTask) => void;
   cutIdsMirror: Readonly<Record<string, true>>;
   cutSelectedTasks: () => void;
-  cutTask: (task: TaskOrEmpty) => void;
-  handleAddChilds: (parent: Task, descendants: readonly TaskOrEmpty[]) => void;
-  handleDeleteTasks: (tasksForDelete: readonly TaskOrEmpty[]) => void;
-  handleEditTask: (taskForEdit: TaskOrEmpty) => void;
-  handleMoveTasksInside: (parent: Task, childs: readonly TaskOrEmpty[]) => void;
-  makeCopies: (tasksForCopy: readonly TaskOrEmpty[]) => readonly TaskOrEmpty[];
+  cutTask: (task: RenderTask) => void;
+  handleAddChilds: (parent: Task, descendants: readonly RenderTask[]) => void;
+  handleDeleteTasks: (tasksForDelete: readonly RenderTask[]) => void;
+  handleEditTask: (taskForEdit: RenderTask) => void;
+  handleMoveTasksInside: (parent: Task, childs: readonly RenderTask[]) => void;
+  makeCopies: (tasksForCopy: readonly RenderTask[]) => readonly RenderTask[];
   resetSelectedTasks: () => void;
   selectedIdsMirror: Readonly<Record<string, true>>;
   tasksMap: TaskMapByLevel;
@@ -103,7 +103,7 @@ export const useHandleAction = ({
   tasksMap,
 }: UseHandleActionParams) => {
   const handleAction = useCallback(
-    (task: TaskOrEmpty, action: (meta: ActionMetaType) => void) => {
+    (task: RenderTask, action: (meta: ActionMetaType) => void) => {
       const {
         getParentTasksWithCache,
         getSelectedTasksWithCache,

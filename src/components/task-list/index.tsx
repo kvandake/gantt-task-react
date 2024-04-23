@@ -13,7 +13,7 @@ import {
   OnResizeColumn,
   Task,
   TaskListTableRowProps,
-  TaskOrEmpty,
+  RenderTask,
 } from "../../types";
 
 import { useOptimizedList } from "../../helpers/use-optimized-list";
@@ -40,20 +40,20 @@ export type TaskListProps = {
   ganttHeight: number;
   getTaskCurrentState: (task: Task) => Task;
   handleAddTask: (task: Task | null) => void;
-  handleDeleteTasks: (task: TaskOrEmpty[]) => void;
-  handleEditTask: (task: TaskOrEmpty) => void;
-  handleMoveTaskBefore: (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => void;
-  handleMoveTaskAfter: (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => void;
-  handleMoveTasksInside: (parent: Task, childs: readonly TaskOrEmpty[]) => void;
+  handleDeleteTasks: (task: RenderTask[]) => void;
+  handleEditTask: (task: RenderTask) => void;
+  handleMoveTaskBefore: (target: RenderTask, taskForMove: RenderTask) => void;
+  handleMoveTaskAfter: (target: RenderTask, taskForMove: RenderTask) => void;
+  handleMoveTasksInside: (parent: Task, childs: readonly RenderTask[]) => void;
   handleOpenContextMenu: (
-    task: TaskOrEmpty,
+    task: RenderTask,
     clientX: number,
     clientY: number
   ) => void;
   icons?: Partial<GanttRenderIconsProps>;
   isShowTaskNumbers?: boolean;
   mapTaskToNestedIndex: MapTaskToNestedIndex;
-  onClick?: (task: TaskOrEmpty) => void;
+  onClick?: (task: RenderTask) => void;
   onExpanderClick: (task: Task) => void;
   scrollToBottomStep: () => void;
   scrollToTask: (task: Task) => void;
@@ -62,7 +62,7 @@ export type TaskListProps = {
   selectedIdsMirror: Readonly<Record<string, true>>;
   taskListContainerRef: RefObject<HTMLDivElement>;
   taskListRef: RefObject<HTMLDivElement>;
-  tasks: readonly TaskOrEmpty[];
+  tasks: readonly RenderTask[];
   onResizeColumn?: OnResizeColumn;
 };
 
@@ -117,7 +117,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
   );
 
   const getTableRowProps = useCallback(
-    (task: TaskOrEmpty, index: number) => {
+    (task: RenderTask, index: number) => {
       const { id, comparisonLevel = 1 } = task;
       const indexesOnLevel = mapTaskToNestedIndex.get(comparisonLevel);
       if (!indexesOnLevel) {

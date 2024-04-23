@@ -10,7 +10,7 @@ import type {
   OnDateChangeSuggestionType,
   Task,
   TaskMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
   TaskToGlobalIndexMap,
 } from "../types";
 import { collectParents } from "./collect-parents";
@@ -154,7 +154,7 @@ const getSuggestedStartEndChangesFromDirectChildren = (
 
   const resIndex = typeof index === "number" ? index : -1;
 
-  const id2Task: Map<string, TaskOrEmpty> = tasksMap.get(comparisonLevel);
+  const id2Task: Map<string, RenderTask> = tasksMap.get(comparisonLevel);
   const tasks = Array.from(id2Task.values()).filter(
     ({ type }) => type !== "empty"
   ) as Task[];

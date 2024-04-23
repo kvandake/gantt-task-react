@@ -1,12 +1,12 @@
 import { checkIsDescendant } from "../helpers/check-is-descendant";
 
-import type { TaskMapByLevel, TaskOrEmpty } from "../types";
+import type { TaskMapByLevel, RenderTask } from "../types";
 
 export const getParentTasks = (
-  selectedTasks: TaskOrEmpty[],
+  selectedTasks: RenderTask[],
   tasksMap: TaskMapByLevel
 ) => {
-  const res: TaskOrEmpty[] = [];
+  const res: RenderTask[] = [];
 
   selectedTasks.forEach(maybeDescendant => {
     const isDescendant = selectedTasks.some(maybeParent => {

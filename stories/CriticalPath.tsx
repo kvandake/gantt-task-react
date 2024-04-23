@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 
 import { addDays } from "date-fns";
 
-import { Gantt, OnCommitTasks, Task, TaskOrEmpty } from "../src";
+import { Gantt, OnCommitTasks, Task, RenderTask } from "../src";
 
 import { onAddTask, onEditTask } from "./helper";
 
@@ -83,7 +83,7 @@ const initTasks = () => {
 };
 
 export const CriticalPath: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasks);
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(initTasks);
 
   const onChangeTasks = useCallback<OnCommitTasks>((nextTasks, action) => {
     switch (action.type) {
@@ -119,7 +119,7 @@ export const CriticalPath: React.FC<AppProps> = props => {
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 

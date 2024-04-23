@@ -61,6 +61,10 @@ export interface Task {
    */
   parent?: string;
   dependencies?: Dependency[];
+  comparisonDates?: {
+    start: Date;
+    end: Date;
+  }
   hideChildren?: boolean;
   displayOrder?: number;
   comparisonLevel?: number;
@@ -77,13 +81,13 @@ export interface EmptyTask {
   isDisabled?: boolean;
 }
 
-export type TaskOrEmpty = Task | EmptyTask;
+export type RenderTask = Task | EmptyTask;
 
 // comparison level -> task id -> array of child tasks
-export type ChildByLevelMap = Map<number, Map<string, TaskOrEmpty[]>>;
+export type ChildByLevelMap = Map<number, Map<string, RenderTask[]>>;
 
 // comparison level -> tasks that don't have parent
-export type RootMapByLevel = Map<number, TaskOrEmpty[]>;
+export type RootMapByLevel = Map<number, RenderTask[]>;
 
 export interface DateSetup {
   dateFormats: DateFormats;

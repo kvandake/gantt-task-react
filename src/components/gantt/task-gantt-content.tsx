@@ -13,10 +13,10 @@ import {
   RelationKind,
   RelationMoveTarget,
   RenderCustomLabel,
+  RenderTask,
   Task,
   TaskBarMoveAction,
   TaskCoordinates,
-  TaskOrEmpty,
 } from "../../types";
 import { Arrow } from "../other/arrow";
 import { RelationLine } from "../other/relation-line";
@@ -24,6 +24,7 @@ import { TaskItem } from "../task-item/task-item";
 import styles from "./task-gantt-content.module.css";
 import { checkHasChildren } from "../../helpers/check-has-children";
 import type { OptimizedListParams } from "../../helpers/use-optimized-list";
+import { BarComparison } from "../task-item/bar-comparison";
 
 export interface TaskGanttContentProps extends GanttTaskBarActions {
   authorizedRelations: RelationKind[];
@@ -42,7 +43,7 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   getDate: (index: number) => Date;
   getTaskCoordinates: (task: Task) => TaskCoordinates;
   onTaskBarRelationStart: (target: RelationMoveTarget, task: Task) => void;
-  onDeleteTask: (task: TaskOrEmpty) => void;
+  onDeleteTask: (task: RenderTask) => void;
   onTaskBarDragStart: (
     action: TaskBarMoveAction,
     task: Task,
@@ -68,7 +69,7 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   isProgressChangeable?: (task: Task) => boolean;
   isDateChangeable?: (task: Task) => boolean;
   isRelationChangeable?: (task: Task) => boolean;
-  taskBarMovingAction: (task: TaskOrEmpty) => TaskBarMoveAction | null;
+  taskBarMovingAction: (task: RenderTask) => TaskBarMoveAction | null;
 }
 
 const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
@@ -216,6 +217,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
         progressWidth,
         x1: taskX1,
         x2: taskX2,
+        comparisonDates,
       } = getTaskCoordinates(task);
 
       tasksRes.push(
@@ -228,6 +230,8 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           height={fullRowHeight}
           key={key}
         >
+          {comparisonDates && <BarComparison {...comparisonDates} />}
+
           <TaskItem
             movingAction={taskBarMovingAction(task)}
             allowMoveTaskBar={allowMoveTaskBar}

@@ -10,7 +10,7 @@ import {
   RootMapByLevel,
   Task,
   TaskBarMoveAction,
-  TaskOrEmpty,
+  RenderTask,
   ViewMode,
 } from "./common-types";
 
@@ -21,7 +21,7 @@ export type RenderTopHeader = (
 ) => ReactNode;
 
 export type RenderCustomLabel = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   x1: number,
   width: number,
   taskHeight: number,
@@ -84,8 +84,8 @@ export type OnChangeTasksAction =
   | {
       type: "add_tasks";
       payload: {
-        parent: TaskOrEmpty;
-        descendants: readonly TaskOrEmpty[];
+        parent: RenderTask;
+        descendants: readonly RenderTask[];
       };
     }
   | {
@@ -109,7 +109,7 @@ export type OnChangeTasksAction =
   | {
       type: "delete_task";
       payload: {
-        tasks: readonly TaskOrEmpty[];
+        tasks: readonly RenderTask[];
         taskIndexes: readonly number[];
       };
     }
@@ -119,8 +119,8 @@ export type OnChangeTasksAction =
   | {
       type: "move_task_before";
       payload: {
-        task: TaskOrEmpty;
-        taskForMove: TaskOrEmpty;
+        task: RenderTask;
+        taskForMove: RenderTask;
         taskIndex: number;
         taskForMoveIndex: number;
       };
@@ -128,8 +128,8 @@ export type OnChangeTasksAction =
   | {
       type: "move_task_after";
       payload: {
-        task: TaskOrEmpty;
-        taskForMove: TaskOrEmpty;
+        task: RenderTask;
+        taskForMove: RenderTask;
         taskIndex: number;
         taskForMoveIndex: number;
       };
@@ -138,7 +138,7 @@ export type OnChangeTasksAction =
       type: "move_task_inside";
       payload: {
         parent: Task;
-        childs: readonly TaskOrEmpty[];
+        childs: readonly RenderTask[];
         dependentTasks: readonly Task[];
         parentIndex: number;
         childIndexes: readonly number[];
@@ -183,7 +183,7 @@ export type RelationKind =
 export type OnCommitTasksResult = boolean | undefined | void;
 
 export type OnCommitTasks = (
-  nextTasks: readonly TaskOrEmpty[],
+  nextTasks: readonly RenderTask[],
   action: OnChangeTasksAction
 ) => Promise<OnCommitTasksResult> | OnCommitTasksResult;
 
@@ -262,7 +262,7 @@ export interface GanttTaskBarProps extends GanttTaskBarActions {
   /**
    * Invokes on bar click.
    */
-  onClick?: (task: TaskOrEmpty) => void;
+  onClick?: (task: RenderTask) => void;
 }
 
 export interface GanttRenderIconsProps {
@@ -277,7 +277,7 @@ export interface GanttRenderIconsProps {
 
 export type InsertTaskPosition = "before" | "inside" | "after";
 export type AllowReorderTask = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   method: InsertTaskPosition
 ) => boolean;
 
@@ -320,7 +320,7 @@ export interface GanttProps {
   /**
    *  Tasks
    */
-  tasks: readonly TaskOrEmpty[];
+  tasks: readonly RenderTask[];
 
   /**
    * Columns of the table
@@ -381,12 +381,12 @@ export interface GanttProps {
   /**
    * Callback for getting data of the added task
    */
-  onAddTaskAction?: (task: Task | null) => Promise<TaskOrEmpty | null>;
+  onAddTaskAction?: (task: Task | null) => Promise<RenderTask | null>;
 
   /**
    * Callback for getting new data of the edited task
    */
-  onEditTaskAction?: (task: TaskOrEmpty) => Promise<TaskOrEmpty | null>;
+  onEditTaskAction?: (task: RenderTask) => Promise<RenderTask | null>;
 
   /**
    * Invokes on wheel event
@@ -416,7 +416,7 @@ export interface GanttProps {
 }
 
 export interface GanttTaskBarActions {
-  allowMoveTaskBar?: (action: TaskBarMoveAction, task: TaskOrEmpty) => boolean;
+  allowMoveTaskBar?: (action: TaskBarMoveAction, task: RenderTask) => boolean;
 }
 
 export type ColumnData = {
@@ -425,15 +425,15 @@ export type ColumnData = {
   dependencies: Task[];
   distances: Distances;
   handleAddTask: (task: Task) => void;
-  handleDeleteTasks: (task: TaskOrEmpty[]) => void;
-  handleEditTask: (task: TaskOrEmpty) => void;
+  handleDeleteTasks: (task: RenderTask[]) => void;
+  handleEditTask: (task: RenderTask) => void;
   hasChildren: boolean;
   icons?: Partial<GanttRenderIconsProps>;
   indexStr: string;
   isClosed: boolean;
   isShowTaskNumbers: boolean;
   onExpanderClick: (task: Task) => void;
-  task: TaskOrEmpty;
+  task: RenderTask;
 };
 
 export type ColumnProps = {
@@ -461,11 +461,11 @@ export type ChangeAction =
       addedIdsMap: Map<number, Set<string>>;
       addedChildsByLevelMap: ChildByLevelMap;
       addedRootsByLevelMap: RootMapByLevel;
-      descendants: readonly TaskOrEmpty[];
+      descendants: readonly RenderTask[];
     }
   | {
       type: "change";
-      task: TaskOrEmpty;
+      task: RenderTask;
     }
   | {
       type: "change_start_and_end";
@@ -475,24 +475,24 @@ export type ChangeAction =
     }
   | {
       type: "delete";
-      tasks: readonly TaskOrEmpty[];
+      tasks: readonly RenderTask[];
       // comparison level -> task id
       deletedIdsMap: Map<number, Set<string>>;
     }
   | {
       type: "move-before";
-      target: TaskOrEmpty;
-      taskForMove: TaskOrEmpty;
+      target: RenderTask;
+      taskForMove: RenderTask;
     }
   | {
       type: "move-after";
-      target: TaskOrEmpty;
-      taskForMove: TaskOrEmpty;
+      target: RenderTask;
+      taskForMove: RenderTask;
     }
   | {
       type: "move-inside";
       parent: Task;
-      childs: readonly TaskOrEmpty[];
+      childs: readonly RenderTask[];
       // comparison level -> task id
       movedIdsMap: Map<number, Set<string>>;
     };
@@ -506,7 +506,7 @@ export type ChangeMetadata = [
    * indexes in list of tasks
    */
   Array<{
-    task: TaskOrEmpty;
+    task: RenderTask;
     index: number;
   }>,
   /**
@@ -520,7 +520,7 @@ export type ChangeMetadata = [
 ];
 
 export type ContextMenuType = {
-  task: TaskOrEmpty | null;
+  task: RenderTask | null;
   x: number;
   y: number;
 };
@@ -538,7 +538,7 @@ export type ActionMetaType = {
    * Copy single task
    * @param task the task
    */
-  copyTask: (task: TaskOrEmpty) => void;
+  copyTask: (task: RenderTask) => void;
   /**
    * Cut all selected tasks
    */
@@ -547,66 +547,66 @@ export type ActionMetaType = {
    * Cut single task
    * @param task the task
    */
-  cutTask: (task: TaskOrEmpty) => void;
+  cutTask: (task: RenderTask) => void;
   /**
    * @returns List of parent tasks under copy action
    */
-  getCopyParentTasks: () => readonly TaskOrEmpty[];
+  getCopyParentTasks: () => readonly RenderTask[];
   /**
    * @returns List of tasks under copy action
    */
-  getCopyTasks: () => readonly TaskOrEmpty[];
+  getCopyTasks: () => readonly RenderTask[];
   /**
    * @returns List of tasks with all their descendants under copy action
    */
-  getCopyTasksWithDescendants: () => readonly TaskOrEmpty[];
+  getCopyTasksWithDescendants: () => readonly RenderTask[];
   /**
    * @returns List of parent tasks under cut action
    */
-  getCutParentTasks: () => readonly TaskOrEmpty[];
+  getCutParentTasks: () => readonly RenderTask[];
   /**
    * @returns List of tasks under cut action
    */
-  getCutTasks: () => readonly TaskOrEmpty[];
+  getCutTasks: () => readonly RenderTask[];
   /**
    * @returns List of parent tasks
    */
-  getParentTasks: () => readonly TaskOrEmpty[];
+  getParentTasks: () => readonly RenderTask[];
   /**
    * @returns List of selected tasks
    */
-  getSelectedTasks: () => readonly TaskOrEmpty[];
+  getSelectedTasks: () => readonly RenderTask[];
   /**
    * @returns List of tasks with all their descendants
    */
-  getTasksWithDescendants: () => readonly TaskOrEmpty[];
+  getTasksWithDescendants: () => readonly RenderTask[];
   /**
    * Add childs to the container task
    * @param parent the container task
    * @param descendants list of added childs with their descendants
    */
-  handleAddChilds: (parent: Task, descendants: readonly TaskOrEmpty[]) => void;
+  handleAddChilds: (parent: Task, descendants: readonly RenderTask[]) => void;
   /**
    * Delete tasks
    * @param tasksForDelete list of tasks for delete
    */
-  handleDeleteTasks: (tasksForDelete: readonly TaskOrEmpty[]) => void;
+  handleDeleteTasks: (tasksForDelete: readonly RenderTask[]) => void;
 
   /**
    * Edit task
    */
-  handleEditTask: (task: TaskOrEmpty) => void;
+  handleEditTask: (task: RenderTask) => void;
 
   /**
    * Move tasks to the container task
    * @param parent the container task
    * @param childs list of moved tasks
    */
-  handleMoveTasksInside: (parent: Task, childs: readonly TaskOrEmpty[]) => void;
+  handleMoveTasksInside: (parent: Task, childs: readonly RenderTask[]) => void;
   /**
    * Make copies of the list of tasks
    */
-  makeCopies: (tasks: readonly TaskOrEmpty[]) => readonly TaskOrEmpty[];
+  makeCopies: (tasks: readonly RenderTask[]) => readonly RenderTask[];
   /**
    * Reset selection
    */
@@ -614,7 +614,7 @@ export type ActionMetaType = {
   /**
    * Task that triggered context menu
    */
-  task: TaskOrEmpty;
+  task: RenderTask;
 };
 
 export type CheckIsAvailableMetaType = {
@@ -631,7 +631,7 @@ export type CheckIsAvailableMetaType = {
   /**
    * Context menu trigger task
    */
-  task: TaskOrEmpty;
+  task: RenderTask;
 };
 
 export type ContextMenuOptionType = {
@@ -655,7 +655,7 @@ export type CheckTaskIdExistsAtLevel = (
 ) => boolean;
 
 export type GetCopiedTaskId = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   checkExists: (newId: string) => boolean
 ) => string;
 

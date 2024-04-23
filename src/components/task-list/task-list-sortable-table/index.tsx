@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import React, { memo, useCallback, useMemo, useRef, useState } from "react";
-import { TaskListTableProps, TaskOrEmpty } from "../../../types";
+import { TaskListTableProps, RenderTask } from "../../../types";
 import {
   Announcements,
   closestCenter,
@@ -206,7 +206,7 @@ const TaskListSortableTableDefaultInner: React.FC<
           if (projected.depth > previousDepth) {
             announcement = `${activeId} was ${nestedVerb} under ${previousItem.id}.`;
           } else {
-            let previousSibling: TaskOrEmpty | undefined = previousItem;
+            let previousSibling: RenderTask | undefined = previousItem;
             const previousSiblingDepth = getTaskDepth(previousSibling.id);
             while (previousSibling && projected.depth < previousSiblingDepth) {
               const parentId: UniqueIdentifier | null = previousSibling.parent;

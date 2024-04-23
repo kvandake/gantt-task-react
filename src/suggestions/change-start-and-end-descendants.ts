@@ -4,14 +4,14 @@ import type {
   AdjustTaskToWorkingDatesParams,
   OnDateChangeSuggestionType,
   Task,
-  TaskOrEmpty,
+  RenderTask,
   TaskToGlobalIndexMap,
 } from "../types";
 
 type ChangeStartAndEndDescendantsParams = {
   adjustTaskToWorkingDates: (params: AdjustTaskToWorkingDatesParams) => Task;
   changedTask: Task;
-  descendants: readonly TaskOrEmpty[];
+  descendants: readonly RenderTask[];
   mapTaskToGlobalIndex: TaskToGlobalIndexMap;
   originalTask: Task;
 };

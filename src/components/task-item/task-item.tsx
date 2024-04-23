@@ -10,7 +10,7 @@ import {
   RenderCustomLabel,
   Task,
   TaskBarMoveAction,
-  TaskOrEmpty,
+  RenderTask,
 } from "../../types";
 import { Bar } from "./bar";
 import { Milestone } from "./milestone";
@@ -45,7 +45,7 @@ export interface TaskItemProps
   isDateChangeable: (task: Task) => boolean;
 
   onRelationStart: (target: RelationMoveTarget, selectedTask: Task) => void;
-  onDeleteTask: (task: TaskOrEmpty) => void;
+  onDeleteTask: (task: RenderTask) => void;
   onSelectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
   onClick?: (task: Task, event: React.MouseEvent<SVGElement>) => void;
   onDoubleClick?: (task: Task) => void;

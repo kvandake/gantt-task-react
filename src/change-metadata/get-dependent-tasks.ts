@@ -2,12 +2,12 @@ import type {
   ChangeAction,
   DependentMap,
   Task,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 
 export const fillDependentTasksForTask = (
   resSet: Set<Task>,
-  task: TaskOrEmpty,
+  task: RenderTask,
   dependentMap: DependentMap
 ) => {
   const { id: taskId, comparisonLevel = 1 } = task;

@@ -6,13 +6,13 @@ import {
   MinAndMaxChildsOfTask,
   RootMapByLevel,
   Task,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 
 const fillMinAndMaxChildsMap = (
   resOnLevel: Map<string, MinAndMaxChildsOfTask>,
   task: Task,
-  childTasksOnLevel: Map<string, TaskOrEmpty[]>
+  childTasksOnLevel: Map<string, RenderTask[]>
 ) => {
   const childs = childTasksOnLevel.get(task.id);
 

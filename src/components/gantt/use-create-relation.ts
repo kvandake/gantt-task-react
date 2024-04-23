@@ -15,7 +15,7 @@ import {
   RelationMoveTarget,
   Task,
   TaskMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
   TaskToGlobalIndexMap,
 } from "../../types";
 
@@ -28,7 +28,7 @@ type UseCreateRelationParams = {
   rtl: boolean;
   taskHalfHeight: number;
   tasksMap: TaskMapByLevel;
-  visibleTasks: readonly TaskOrEmpty[];
+  visibleTasks: readonly RenderTask[];
 };
 
 export const useCreateRelation = ({

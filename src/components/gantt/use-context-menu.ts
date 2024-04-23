@@ -1,7 +1,7 @@
 import type { RefObject } from "react";
 import { useCallback, useState } from "react";
 
-import { ContextMenuType, Task, TaskOrEmpty } from "../../types";
+import { ContextMenuType, Task, RenderTask } from "../../types";
 
 export const useContextMenu = (
   wrapperRef: RefObject<HTMLDivElement>,
@@ -14,7 +14,7 @@ export const useContextMenu = (
   });
 
   const handleOpenContextMenu = useCallback(
-    (task: TaskOrEmpty, clientX: number, clientY: number) => {
+    (task: RenderTask, clientX: number, clientY: number) => {
       const wrapperNode = wrapperRef.current;
 
       if (!wrapperNode) {

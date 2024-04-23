@@ -2,13 +2,13 @@ import {
   RelationMoveTarget,
   Task,
   TaskCoordinates,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 import { getCoordinatesOnLevel } from "./get-task-coordinates";
 
 export const getRelationCircleByCoordinates = (
   svgP: DOMPoint,
-  tasks: readonly TaskOrEmpty[],
+  tasks: readonly RenderTask[],
   taskHalfHeight: number,
   relationCircleOffset: number,
   relationCircleRadius: number,

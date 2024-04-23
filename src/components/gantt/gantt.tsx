@@ -20,7 +20,7 @@ import {
   OnRelationChange,
   Task,
   TaskBarMoveAction,
-  TaskOrEmpty,
+  RenderTask,
   ViewMode,
 } from "../../types";
 import { GanttTodayProps } from "../gantt-today";
@@ -231,7 +231,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const makeCopies = useCallback(
-    (tasksForCopy: readonly TaskOrEmpty[]) =>
+    (tasksForCopy: readonly RenderTask[]) =>
       copyTasks(tasksForCopy, getCopiedTaskId, checkTaskIdExists),
     [checkTaskIdExists, getCopiedTaskId]
   );
@@ -484,8 +484,8 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const handleCommitInternal = useCallback(
     (
-      prevTasks: TaskOrEmpty[],
-      nextTasks: TaskOrEmpty[],
+      prevTasks: RenderTask[],
+      nextTasks: RenderTask[],
       action: OnChangeTasksAction
     ) => {
       if (!onCommitTasks) {
@@ -675,7 +675,7 @@ export const Gantt: React.FC<GanttProps> = props => {
    * Result is not readonly for optimization
    */
   const prepareSuggestions = useCallback(
-    (suggestions: readonly OnDateChangeSuggestionType[]): TaskOrEmpty[] => {
+    (suggestions: readonly OnDateChangeSuggestionType[]): RenderTask[] => {
       const nextTasks = [...sortedTasks];
       suggestions.forEach(([start, end, task, index]) => {
         nextTasks[index] = {
@@ -691,7 +691,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const handleEditTask = useCallback(
-    (task: TaskOrEmpty) => {
+    (task: RenderTask) => {
       if (!onEditTaskAction) {
         return;
       }
@@ -742,7 +742,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const handleAddChilds = useCallback(
-    (parent: Task, descendants: readonly TaskOrEmpty[]) => {
+    (parent: Task, descendants: readonly RenderTask[]) => {
       const addedIdsMap = new Map<number, Set<string>>();
 
       descendants.forEach(descendant => {
@@ -945,7 +945,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   } = useTaskTooltip(changeInProgress);
 
   const handleDeleteTasks = useCallback(
-    (tasksForDelete: readonly TaskOrEmpty[]) => {
+    (tasksForDelete: readonly RenderTask[]) => {
       onChangeTooltipTask(null, null);
 
       const deletedIdsMap = new Map<number, Set<string>>();
@@ -993,7 +993,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const handleMoveTaskAfter = useCallback(
-    (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => {
+    (target: RenderTask, taskForMove: RenderTask) => {
       onChangeTooltipTask(null, null);
       const [, taskIndexes, , suggestions] = getMetadata({
         type: "move-after",
@@ -1046,7 +1046,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const handleMoveTaskBefore = useCallback(
-    (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => {
+    (target: RenderTask, taskForMove: RenderTask) => {
       onChangeTooltipTask(null, null);
 
       const [, taskIndexes, , suggestions] = getMetadata({
@@ -1101,7 +1101,7 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const handleMoveTasksInside = useCallback(
-    (parent: Task, childs: readonly TaskOrEmpty[]) => {
+    (parent: Task, childs: readonly RenderTask[]) => {
       onChangeTooltipTask(null, null);
       const { comparisonLevel = 1 } = parent;
 

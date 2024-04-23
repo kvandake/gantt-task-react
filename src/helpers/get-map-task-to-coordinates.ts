@@ -3,9 +3,9 @@ import {
   MapTaskToCoordinates,
   Task,
   TaskCoordinates,
-  TaskOrEmpty,
+  RenderTask,
   TaskToRowIndexMap,
-  ViewMode,
+  ViewMode, TaskComparisonDatesCoordinates
 } from "../types";
 
 import { progressWithByParams, taskXCoordinate } from "./bar-helper";
@@ -59,13 +59,32 @@ export const countTaskCoordinates = (
 
   const taskX2 = type === "milestone" ? x2 + taskHeight * 0.5 : x2;
 
-  const taskWidth = type === "milestone" ? taskHeight : Math.max(taskX2 - taskX1, 20);
+  const taskWidth = type === "milestone" ? taskHeight : Math.max(taskX2 - taskX1, 10);
 
   const containerX = taskX1 - columnWidth;
   const containerWidth = svgWidth - containerX;
 
   const innerX1 = columnWidth;
   const innerX2 = columnWidth + taskWidth;
+
+  let comparisonDates: TaskComparisonDatesCoordinates;
+  if(task.comparisonDates) {
+    const cx1 = rtl
+      ? svgWidth - taskXCoordinate(task.comparisonDates.end, startDate, viewMode, columnWidth)
+      : taskXCoordinate(task.comparisonDates.start, startDate, viewMode, columnWidth);
+
+    const cx2 = rtl
+      ? svgWidth - taskXCoordinate(task.comparisonDates.start, startDate, viewMode, columnWidth)
+      : taskXCoordinate(task.comparisonDates.end, startDate, viewMode, columnWidth);
+
+    console.log('cx1',cx1)
+
+    comparisonDates = {
+      x: cx1 - columnWidth,
+      y: rowHeight - 12,
+      width: Math.max(cx2 - cx1, 0),
+    }
+  }
 
   return {
     containerWidth,
@@ -79,11 +98,12 @@ export const countTaskCoordinates = (
     x1: taskX1,
     x2: taskX2,
     y,
+    comparisonDates,
   };
 };
 
 export const getMapTaskToCoordinates = (
-  tasks: readonly TaskOrEmpty[],
+  tasks: readonly RenderTask[],
   visibleTasksMirror: Readonly<Record<string, true>>,
   taskToRowIndexMap: TaskToRowIndexMap,
   startDate: Date,

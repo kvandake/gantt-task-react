@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 import type {
   CheckTaskIdExistsAtLevel,
   RowIndexToTaskMap,
-  TaskOrEmpty,
+  RenderTask,
   TaskToRowIndexMap,
 } from "../../types";
 
@@ -155,7 +155,7 @@ export const useSelection = (
     [selectTask, selectTasksFromLastSelected, toggleTask]
   );
 
-  const cutTask = useCallback((task: TaskOrEmpty) => {
+  const cutTask = useCallback((task: RenderTask) => {
     setCutIdsMirror({
       [task.id]: true,
     });
@@ -167,7 +167,7 @@ export const useSelection = (
     setSelectedIdsMirror(initialValue);
   }, [selectedIdsMirror]);
 
-  const copyTask = useCallback((task: TaskOrEmpty) => {
+  const copyTask = useCallback((task: RenderTask) => {
     setCopyIdsMirror({
       [task.id]: true,
     });

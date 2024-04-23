@@ -1,14 +1,14 @@
 import type { UniqueIdentifier } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import { TaskOrEmpty } from "../../../types";
+import { RenderTask } from "../../../types";
 
 function getDragDepth(offset: number, indentationWidth: number) {
   return Math.round(offset / indentationWidth);
 }
 
 export function getProjection(
-  items: TaskOrEmpty[],
+  items: RenderTask[],
   activeId: UniqueIdentifier,
   overId: UniqueIdentifier,
   dragOffset: number,
@@ -63,7 +63,7 @@ function getMaxDepth({
   previousItem,
   getTaskDepth,
 }: {
-  previousItem: TaskOrEmpty;
+  previousItem: RenderTask;
   getTaskDepth: (id: UniqueIdentifier) => number;
 }) {
   if (previousItem) {
@@ -77,7 +77,7 @@ function getMinDepth({
   nextItem,
   getTaskDepth,
 }: {
-  nextItem: TaskOrEmpty;
+  nextItem: RenderTask;
   getTaskDepth: (id: UniqueIdentifier) => number;
 }) {
   if (nextItem) {

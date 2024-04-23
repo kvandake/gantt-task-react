@@ -7,13 +7,13 @@ import {
   endOfDay,
 } from "date-fns";
 
-import { Task, TaskOrEmpty } from "../src";
+import { Task, RenderTask } from "../src";
 
 const dateFormat = "dd/MM/yyyy HH:mm";
 
 export function initTasksWithoutProject() {
   const currentDate = new Date();
-  const tasks: TaskOrEmpty[] = [
+  const tasks: RenderTask[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
       end: new Date(
@@ -139,7 +139,7 @@ export function initTasksWithoutProject() {
 
 export function initTasks() {
   const currentDate = new Date();
-  const tasks: TaskOrEmpty[] = [
+  const tasks: RenderTask[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
       end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 15),
@@ -347,7 +347,7 @@ export const onAddTask = (parentTask: Task) => {
     end: parentTask.end,
   });
 
-  const nextTask: TaskOrEmpty =
+  const nextTask: RenderTask =
     taskFields.start && taskFields.end
       ? {
           type: "task",
@@ -371,14 +371,14 @@ export const onAddTask = (parentTask: Task) => {
   return Promise.resolve(nextTask);
 };
 
-export const onEditTask = (task: TaskOrEmpty) => {
+export const onEditTask = (task: RenderTask) => {
   const taskFields = getTaskFields({
     name: task.name,
     start: task.type === "empty" ? null : task.start,
     end: task.type === "empty" ? null : task.end,
   });
 
-  const nextTask: TaskOrEmpty =
+  const nextTask: RenderTask =
     task.type === "task" || task.type === "empty"
       ? taskFields.start && taskFields.end
         ? {

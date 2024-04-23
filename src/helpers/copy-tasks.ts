@@ -1,11 +1,11 @@
 import type {
   CheckTaskIdExistsAtLevel,
   GetCopiedTaskId,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 
 export const copyTasks = (
-  tasks: readonly TaskOrEmpty[],
+  tasks: readonly RenderTask[],
   getCopiedTaskId: GetCopiedTaskId,
   checkExistsAtLevel: CheckTaskIdExistsAtLevel
 ) => {
@@ -28,7 +28,7 @@ export const copyTasks = (
     idToCopiedIdMap.set(comparisonLevel, idToCopiedIdAtLevelMap);
   });
 
-  return tasks.map<TaskOrEmpty>(originalTask => {
+  return tasks.map<RenderTask>(originalTask => {
     const { id: originalId, comparisonLevel = 1, parent } = originalTask;
 
     const idToCopiedIdAtLevelMap = idToCopiedIdMap.get(comparisonLevel);

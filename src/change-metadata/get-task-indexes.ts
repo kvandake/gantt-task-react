@@ -1,11 +1,11 @@
 import type {
   ChangeAction,
-  TaskOrEmpty,
+  RenderTask,
   TaskToGlobalIndexMap,
 } from "../types";
 
 export const getTaskIndex = (
-  task: TaskOrEmpty,
+  task: RenderTask,
   mapTaskToGlobalIndex: TaskToGlobalIndexMap
 ) => {
   const { id: taskId, comparisonLevel = 1 } = task;

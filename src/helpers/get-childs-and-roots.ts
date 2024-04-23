@@ -1,11 +1,11 @@
-import { ChildByLevelMap, RootMapByLevel, TaskOrEmpty } from "../types";
+import { ChildByLevelMap, RootMapByLevel, RenderTask } from "../types";
 
 export const getChildsAndRoots = (
-  tasks: readonly TaskOrEmpty[],
-  checkIsRoot: ((task: TaskOrEmpty) => boolean) | null
+  tasks: readonly RenderTask[],
+  checkIsRoot: ((task: RenderTask) => boolean) | null
 ): [ChildByLevelMap, RootMapByLevel] => {
-  const childRes = new Map<number, Map<string, TaskOrEmpty[]>>();
-  const rootRes = new Map<number, TaskOrEmpty[]>();
+  const childRes = new Map<number, Map<string, RenderTask[]>>();
+  const rootRes = new Map<number, RenderTask[]>();
 
   tasks.forEach(task => {
     const { parent, comparisonLevel = 1 } = task;
@@ -18,7 +18,7 @@ export const getChildsAndRoots = (
     }
 
     const parentsByLevel =
-      childRes.get(comparisonLevel) || new Map<string, TaskOrEmpty[]>();
+      childRes.get(comparisonLevel) || new Map<string, RenderTask[]>();
     const prevValue = parentsByLevel.get(parent) || [];
 
     parentsByLevel.set(parent, [...prevValue, task]);

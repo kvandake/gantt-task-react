@@ -1,7 +1,7 @@
 import type { MutableRefObject } from "react";
-import { TaskOrEmpty } from "../../../types";
+import { RenderTask } from "../../../types";
 
 export type SensorContext = MutableRefObject<{
-  items: TaskOrEmpty[];
+  items: RenderTask[];
   offset: number;
 }>;

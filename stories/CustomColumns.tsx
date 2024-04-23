@@ -10,16 +10,16 @@ import {
   OnResizeColumn,
   Task,
   TaskCenterLabel,
-  TaskOrEmpty,
+  RenderTask,
   TitleColumn,
-  ViewMode
+  ViewMode,
 } from "../src";
-import { differenceInDays } from "date-fns";
+import { addDays, differenceInDays } from "date-fns";
 import { initTasks, onAddTask, onEditTask } from "./helper";
 import { TaskOutlineLabel } from "../src/components/task-item/task-label";
 
 function wait(ms: number) {
-  return new Promise((resolve, reject) => setTimeout(resolve, ms));
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const ProgressColumn: React.FC<ColumnProps> = ({ data: { task } }) => {
@@ -86,38 +86,53 @@ export const getColumns = (
 };
 
 export const CustomColumns: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasks());
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(() => {
+    const stateTasks = initTasks();
 
-  const onCommitTasks = useCallback<OnCommitTasks>(async (nextTasks, action): Promise<boolean | void> => {
-    switch (action.type) {
-      case "date_change":
-        await wait(2000);
-        setTasks(nextTasks);
-        console.log('waiting 2 seconds ... Simulate update from server');
-        break;
-      case "delete_relation":
-        if (
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-expect-error
-          window.confirm(
-            `Do yo want to remove relation between ${action.payload.taskFrom.name} and ${action.payload.taskTo.name}?`
-          )
-        ) {
-          setTasks(nextTasks);
-          break;
-        }
-        break;
-      case "delete_task":
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        if (window.confirm("Are you sure?")) {
-          setTasks(nextTasks);
-          break;
-        }
+    const ideaTask = stateTasks.find(task => task.id === "Idea");
+    if (ideaTask && ideaTask.type === "task") {
+      ideaTask.comparisonDates = {
+        start: addDays(ideaTask.start, 1),
+        end: addDays(ideaTask.end, 7),
+      };
     }
 
-    setTasks(nextTasks);
-  }, []);
+    return stateTasks;
+  });
+
+  const onCommitTasks = useCallback<OnCommitTasks>(
+    async (nextTasks, action): Promise<boolean | void> => {
+      switch (action.type) {
+        case "date_change":
+          await wait(100);
+          setTasks(nextTasks);
+          console.log("waiting 2 seconds ... Simulate update from server");
+          break;
+        case "delete_relation":
+          if (
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-expect-error
+            window.confirm(
+              `Do yo want to remove relation between ${action.payload.taskFrom.name} and ${action.payload.taskTo.name}?`
+            )
+          ) {
+            setTasks(nextTasks);
+            break;
+          }
+          break;
+        case "delete_task":
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          if (window.confirm("Are you sure?")) {
+            setTasks(nextTasks);
+            break;
+          }
+      }
+
+      setTasks(nextTasks);
+    },
+    []
+  );
 
   const handleDblClick = useCallback((task: Task) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -125,7 +140,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 
@@ -152,7 +167,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
     <>
       <Gantt
         {...props}
-        viewMode={ViewMode.Month}
+        viewMode={ViewMode.Week}
         columns={displayedColumns}
         taskBar={{
           onClick: handleClick,

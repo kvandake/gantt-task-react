@@ -2,7 +2,7 @@ import {
   ChildByLevelMap,
   MapTaskToNestedIndex,
   RootMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 
 const getMapTaskTo = (
@@ -10,7 +10,7 @@ const getMapTaskTo = (
   taskId: string,
   level: number,
   collectedIndex: string,
-  childTasksOnLevel: Map<string, TaskOrEmpty[]>
+  childTasksOnLevel: Map<string, RenderTask[]>
 ) => {
   const childs = childTasksOnLevel.get(taskId);
 
@@ -39,7 +39,7 @@ export const getMapTaskToNestedIndex = (
   for (const [comparisonLevel, rootTasks] of rootTasksMap.entries()) {
     const indexesOnLevel = new Map<string, [number, string]>();
     const childTasksOnLevel =
-      childTasksMap.get(comparisonLevel) || new Map<string, TaskOrEmpty[]>();
+      childTasksMap.get(comparisonLevel) || new Map<string, RenderTask[]>();
 
     rootTasks.forEach(({ id: rootId }, index) => {
       const rootIndex = `${index + 1}`;

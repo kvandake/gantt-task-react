@@ -6,7 +6,7 @@ import type {
   ExpandedDependent,
   MapTaskToCoordinates,
   TaskMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 import {
   getCoordinatesOnLevel,
@@ -14,7 +14,7 @@ import {
 } from "./get-task-coordinates";
 
 export const getDependencyMap = (
-  tasks: readonly TaskOrEmpty[],
+  tasks: readonly RenderTask[],
   visibleTasksMirror: Readonly<Record<string, true>>,
   tasksMap: TaskMapByLevel,
   mapTaskToCoordinates: MapTaskToCoordinates,

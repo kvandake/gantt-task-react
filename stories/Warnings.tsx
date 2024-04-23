@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 
-import { Gantt, Task, TaskOrEmpty, OnCommitTasks } from "../src";
+import { Gantt, Task, RenderTask, OnCommitTasks } from "../src";
 
 import { initTasks, onAddTask, onEditTask } from "./helper";
 
@@ -9,7 +9,7 @@ type AppProps = {
 };
 
 export const Warnings: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasks());
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(initTasks());
 
   const onChangeTasks = useCallback<OnCommitTasks>((nextTasks, action) => {
     switch (action.type) {
@@ -45,7 +45,7 @@ export const Warnings: React.FC<AppProps> = props => {
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 

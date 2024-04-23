@@ -5,7 +5,7 @@ import {
   RelationMoveTarget,
   Task,
   TaskBarMoveAction,
-  TaskOrEmpty,
+  RenderTask,
 } from "./common-types";
 import { CSSProperties, MouseEvent, RefObject } from "react";
 import { OptimizedListParams } from "../helpers/use-optimized-list";
@@ -44,6 +44,23 @@ export type ChangeInProgress = {
   taskRootNode: Element;
   tsDiff: number;
 };
+
+export type TaskComparisonDatesCoordinates = {
+  /**
+   * Top border of the comparison task relative to the root svg
+   */
+  y: number;
+
+  /**
+   * Left border of the comparison task relative to the root svg
+   */
+  x: number;
+
+  /**
+   * Width of the comparison task
+   */
+  width: number;
+}
 
 export type TaskCoordinates = {
   /**
@@ -90,6 +107,11 @@ export type TaskCoordinates = {
    * Top border of the task relative to the root svg
    */
   y: number;
+
+  /**
+   * Comparison dates coordinates
+   */
+  comparisonDates?: TaskComparisonDatesCoordinates;
 };
 
 export interface ExpandedDependency {
@@ -119,13 +141,13 @@ export type TaskToGlobalIndexMap = Map<number, Map<string, number>>;
 export type TaskToRowIndexMap = Map<number, Map<string, number>>;
 
 // comparison level -> index of the row containing the task -> task id
-export type RowIndexToTaskMap = Map<number, Map<number, TaskOrEmpty>>;
+export type RowIndexToTaskMap = Map<number, Map<number, RenderTask>>;
 
 // global row index (tasks at different comparison levels have different indexes) -> the task
-export type GlobalRowIndexToTaskMap = Map<number, TaskOrEmpty>;
+export type GlobalRowIndexToTaskMap = Map<number, RenderTask>;
 
 // comparison level -> task id -> the task
-export type TaskMapByLevel = Map<number, Map<string, TaskOrEmpty>>;
+export type TaskMapByLevel = Map<number, Map<string, RenderTask>>;
 
 // comparison level -> task id -> depth of nesting and task number in format like `1.2.1.1.3`
 export type MapTaskToNestedIndex = Map<number, Map<string, [number, string]>>;
@@ -146,7 +168,7 @@ export type CriticalPath = {
 
 export interface TaskListTableProps {
   ganttRef: RefObject<HTMLDivElement>;
-  getTableRowProps: (task: TaskOrEmpty, index: number) => TaskListTableRowProps;
+  getTableRowProps: (task: RenderTask, index: number) => TaskListTableRowProps;
   canMoveTasks: boolean;
   allowMoveTask: AllowReorderTask;
   childTasksMap: ChildByLevelMap;
@@ -159,27 +181,27 @@ export interface TaskListTableProps {
   ganttFullHeight: number;
   getTaskCurrentState: (task: Task) => Task;
   handleAddTask: (task: Task) => void;
-  handleDeleteTasks: (task: TaskOrEmpty[]) => void;
-  handleEditTask: (task: TaskOrEmpty) => void;
-  handleMoveTaskBefore: (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => void;
-  handleMoveTaskAfter: (target: TaskOrEmpty, taskForMove: TaskOrEmpty) => void;
-  handleMoveTasksInside: (parent: Task, childs: readonly TaskOrEmpty[]) => void;
+  handleDeleteTasks: (task: RenderTask[]) => void;
+  handleEditTask: (task: RenderTask) => void;
+  handleMoveTaskBefore: (target: RenderTask, taskForMove: RenderTask) => void;
+  handleMoveTaskAfter: (target: RenderTask, taskForMove: RenderTask) => void;
+  handleMoveTasksInside: (parent: Task, childs: readonly RenderTask[]) => void;
   handleOpenContextMenu: (
-    task: TaskOrEmpty,
+    task: RenderTask,
     clientX: number,
     clientY: number
   ) => void;
   icons?: Partial<GanttRenderIconsProps>;
   isShowTaskNumbers: boolean;
   mapTaskToNestedIndex: MapTaskToNestedIndex;
-  onClick: (task: TaskOrEmpty) => void;
+  onClick: (task: RenderTask) => void;
   onExpanderClick: (task: Task) => void;
   renderedIndexes: OptimizedListParams | null;
   scrollToTask: (task: Task) => void;
   selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
   selectedIdsMirror: Readonly<Record<string, true>>;
   taskListWidth: number;
-  tasks: readonly TaskOrEmpty[];
+  tasks: readonly RenderTask[];
 }
 
 export type TaskListTableRowProps = {
@@ -191,13 +213,13 @@ export type TaskListTableRowProps = {
   fullRowHeight: number;
   getTaskCurrentState: (task: Task) => Task;
   handleAddTask: (task: Task) => void;
-  handleDeleteTasks: (task: TaskOrEmpty[]) => void;
-  handleEditTask: (task: TaskOrEmpty) => void;
+  handleDeleteTasks: (task: RenderTask[]) => void;
+  handleEditTask: (task: RenderTask) => void;
   // eslint-disable-next-line
   moveHandleProps?: any;
   moveOverPosition?: InsertTaskPosition;
   handleOpenContextMenu: (
-    task: TaskOrEmpty,
+    task: RenderTask,
     clientX: number,
     clientY: number
   ) => void;
@@ -211,12 +233,12 @@ export type TaskListTableRowProps = {
   isEven: boolean;
   isSelected: boolean;
   isShowTaskNumbers: boolean;
-  onClick: (task: TaskOrEmpty) => void;
+  onClick: (task: RenderTask) => void;
   onExpanderClick: (task: Task) => void;
   scrollToTask: (task: Task) => void;
   selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
   style?: CSSProperties;
-  task: TaskOrEmpty;
+  task: RenderTask;
 };
 
 export interface TaskListHeaderProps {

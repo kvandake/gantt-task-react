@@ -1,10 +1,10 @@
-import { TaskOrEmpty, TaskToGlobalIndexMap } from "../types";
+import { RenderTask, TaskToGlobalIndexMap } from "../types";
 
 /**
  * @param tasks List of tasks
  */
 export const getMapTaskToGlobalIndex = (
-  tasks: readonly TaskOrEmpty[]
+  tasks: readonly RenderTask[]
 ): TaskToGlobalIndexMap => {
   const res = new Map<number, Map<string, number>>();
 

@@ -6,7 +6,7 @@ import {
   GanttTheme,
   OnCommitTasks,
   Task,
-  TaskOrEmpty,
+  RenderTask,
   useTaskListColumnsBuilder,
   ViewMode,
 } from "../src";
@@ -26,7 +26,7 @@ const DescriptionColumn: FC<ColumnProps> = ({ data }) => {
 };
 
 export const CustomPalette: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(() => {
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(() => {
     const initTasks = initTasksWithoutProject();
     const firstTask = initTasks[0];
     if (firstTask.type === "task") {
@@ -116,7 +116,7 @@ export const CustomPalette: React.FC<AppProps> = props => {
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 

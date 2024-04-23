@@ -9,13 +9,13 @@ import {
   RootMapByLevel,
   Task,
   TaskMapByLevel,
-  TaskOrEmpty,
+  RenderTask,
 } from "../types";
 import { collectParents } from "./collect-parents";
 
 const getLatestTasks = (
   task: Task,
-  childsOnLevel: Map<string, TaskOrEmpty[]>,
+  childsOnLevel: Map<string, RenderTask[]>,
   endTs: number,
   /**
    * Avoid the circle of dependencies
@@ -59,7 +59,7 @@ const collectCriticalPath = (
   target: RelationMoveTarget,
   criticalTs: number,
   tasksMap: TaskMapByLevel,
-  childsOnLevel: Map<string, TaskOrEmpty[]>,
+  childsOnLevel: Map<string, RenderTask[]>,
   dependenciesOnLevel: Map<string, ExpandedDependency[]>,
   dependencyMarginsOnLevel: Map<string, Map<string, number>>
 ) => {
@@ -111,7 +111,7 @@ const collectCriticalPathForTask = (
   criticalPathDependencies: Map<string, Set<string>>,
   task: Task,
   tasksMap: TaskMapByLevel,
-  childsOnLevel: Map<string, TaskOrEmpty[]>,
+  childsOnLevel: Map<string, RenderTask[]>,
   dependenciesOnLevel: Map<string, ExpandedDependency[]>,
   dependencyMarginsOnLevel: Map<string, Map<string, number>>
 ) => {

@@ -16,7 +16,7 @@ import type {
   ContextMenuOptionType,
   ContextMenuType,
   Distances,
-  TaskOrEmpty,
+  RenderTask,
 } from "../../types";
 
 import { MenuOption } from "./menu-option";
@@ -27,7 +27,7 @@ type ContextMenuProps = {
   contextMenu: ContextMenuType;
   distances: Distances;
   handleAction: (
-    task: TaskOrEmpty,
+    task: RenderTask,
     action: (meta: ActionMetaType) => void
   ) => void;
   handleCloseContextMenu: () => void;

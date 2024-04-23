@@ -16,11 +16,11 @@ import {
   subYears,
 } from "date-fns";
 
-import { Distances, TaskOrEmpty, ViewMode } from "../types";
+import { Distances, RenderTask, ViewMode } from "../types";
 import { getDatesDiff } from "./get-dates-diff";
 
 export const ganttDateRange = (
-  tasks: readonly TaskOrEmpty[],
+  tasks: readonly RenderTask[],
   distances: Distances,
   viewMode: ViewMode,
   preStepsCount: number

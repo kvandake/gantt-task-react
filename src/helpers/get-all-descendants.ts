@@ -1,14 +1,14 @@
-import type { ChildByLevelMap, Task, TaskOrEmpty } from "../types";
+import type { ChildByLevelMap, Task, RenderTask } from "../types";
 
 const fillDescendantsForTask = <
   IsCollectEmpty extends boolean,
-  ResultItem extends Task | TaskOrEmpty = IsCollectEmpty extends true
-    ? TaskOrEmpty
+  ResultItem extends Task | RenderTask = IsCollectEmpty extends true
+    ? RenderTask
     : Task,
 >(
   res: ResultItem[],
   task: Task,
-  childTasksAtLevelMap: Map<string, TaskOrEmpty[]>,
+  childTasksAtLevelMap: Map<string, RenderTask[]>,
   isCollectEmpty: IsCollectEmpty
 ) => {
   const childs = childTasksAtLevelMap.get(task.id);
@@ -34,8 +34,8 @@ const fillDescendantsForTask = <
 
 export const getAllDescendants = <
   IsCollectEmpty extends boolean,
-  ResultItem extends Task | TaskOrEmpty = IsCollectEmpty extends true
-    ? TaskOrEmpty
+  ResultItem extends Task | RenderTask = IsCollectEmpty extends true
+    ? RenderTask
     : Task,
 >(
   task: Task,

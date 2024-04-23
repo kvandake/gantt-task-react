@@ -1,10 +1,10 @@
-import type { TaskMapByLevel, TaskOrEmpty } from "../types";
+import type { TaskMapByLevel, RenderTask } from "../types";
 
 export const getSelectedTasks = (
   selectedIdsMirror: Readonly<Record<string, true>>,
   tasksMap: TaskMapByLevel
 ) => {
-  const res: TaskOrEmpty[] = [];
+  const res: RenderTask[] = [];
 
   const tasksAtFirstLevel = tasksMap.get(1);
 

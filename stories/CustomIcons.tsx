@@ -6,7 +6,7 @@ import {
   GanttRenderIconsProps,
   OnCommitTasks,
   Task,
-  TaskOrEmpty,
+  RenderTask,
   ViewMode,
 } from "../src";
 
@@ -30,7 +30,7 @@ type AppProps = {
 };
 
 export const CustomIcons: React.FC<AppProps> = props => {
-  const [tasks, setTasks] = useState<readonly TaskOrEmpty[]>(initTasks());
+  const [tasks, setTasks] = useState<readonly RenderTask[]>(initTasks());
 
   const onChangeTasks = useCallback<OnCommitTasks>((nextTasks, action) => {
     switch (action.type) {
@@ -66,7 +66,7 @@ export const CustomIcons: React.FC<AppProps> = props => {
     alert("On Double Click event Id:" + task.id);
   }, []);
 
-  const handleClick = useCallback((task: TaskOrEmpty) => {
+  const handleClick = useCallback((task: RenderTask) => {
     console.log("On Click event Id:" + task.id);
   }, []);
 

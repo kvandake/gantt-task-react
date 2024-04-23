@@ -1,10 +1,10 @@
-import { ChildByLevelMap, RootMapByLevel, TaskOrEmpty } from "../types";
+import { ChildByLevelMap, RootMapByLevel, RenderTask } from "../types";
 
 const collectChildren = (
-  arrayRes: TaskOrEmpty[],
+  arrayRes: RenderTask[],
   mirrorRes: Record<string, true>,
-  task: TaskOrEmpty,
-  childTasksOnLevel: Map<string, TaskOrEmpty[]>
+  task: RenderTask,
+  childTasksOnLevel: Map<string, RenderTask[]>
 ) => {
   const { comparisonLevel = 1 } = task;
 
@@ -29,13 +29,13 @@ const collectChildren = (
 export const collectVisibleTasks = (
   childTasksMap: ChildByLevelMap,
   rootTasksMap: RootMapByLevel
-): [readonly TaskOrEmpty[], Readonly<Record<string, true>>] => {
-  const arrayRes: TaskOrEmpty[] = [];
+): [readonly RenderTask[], Readonly<Record<string, true>>] => {
+  const arrayRes: RenderTask[] = [];
   const mirrorRes: Record<string, true> = {};
 
   for (const [comparisonLevel, rootTasks] of rootTasksMap.entries()) {
     const childTasksOnLevel =
-      childTasksMap.get(comparisonLevel) || new Map<string, TaskOrEmpty[]>();
+      childTasksMap.get(comparisonLevel) || new Map<string, RenderTask[]>();
 
     rootTasks.forEach(task => {
       collectChildren(arrayRes, mirrorRes, task, childTasksOnLevel);

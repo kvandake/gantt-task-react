@@ -32,7 +32,7 @@ export const taskComparisonXCoordinate = (
 
   const remainderMillis = xDate.getTime() - currentDate.getTime();
   const percentOfInterval = remainderMillis / (nextDate.getTime() - currentDate.getTime());
-  return (index - 1) * columnWidth + percentOfInterval * columnWidth;
+  return index * columnWidth + percentOfInterval * columnWidth;
 };
 
 export const progressWithByParams = (

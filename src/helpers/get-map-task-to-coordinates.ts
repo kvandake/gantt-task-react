@@ -5,10 +5,15 @@ import {
   TaskCoordinates,
   RenderTask,
   TaskToRowIndexMap,
-  ViewMode, TaskComparisonDatesCoordinates
+  ViewMode,
+  TaskComparisonDatesCoordinates,
 } from "../types";
 
-import { progressWithByParams, taskXCoordinate } from "./bar-helper";
+import {
+  progressWithByParams,
+  taskComparisonXCoordinate,
+  taskXCoordinate,
+} from "./bar-helper";
 
 export const countTaskCoordinates = (
   task: Task,
@@ -22,7 +27,7 @@ export const countTaskCoordinates = (
   distances: Distances,
   svgWidth: number
 ): TaskCoordinates => {
-  const { columnWidth, rowHeight } = distances;
+  const { columnWidth, rowHeight, barComparisonTaskHeight } = distances;
 
   const { id, comparisonLevel = 1, progress, type } = task;
 
@@ -59,7 +64,8 @@ export const countTaskCoordinates = (
 
   const taskX2 = type === "milestone" ? x2 + taskHeight * 0.5 : x2;
 
-  const taskWidth = type === "milestone" ? taskHeight : Math.max(taskX2 - taskX1, 10);
+  const taskWidth =
+    type === "milestone" ? taskHeight : Math.max(taskX2 - taskX1, 10);
 
   const containerX = taskX1 - columnWidth;
   const containerWidth = svgWidth - containerX;
@@ -68,22 +74,43 @@ export const countTaskCoordinates = (
   const innerX2 = columnWidth + taskWidth;
 
   let comparisonDates: TaskComparisonDatesCoordinates;
-  if(task.comparisonDates) {
+  if (task.comparisonDates) {
     const cx1 = rtl
-      ? svgWidth - taskXCoordinate(task.comparisonDates.end, startDate, viewMode, columnWidth)
-      : taskXCoordinate(task.comparisonDates.start, startDate, viewMode, columnWidth);
+      ? svgWidth -
+        taskComparisonXCoordinate(
+          task.comparisonDates.end,
+          startDate,
+          viewMode,
+          columnWidth
+        )
+      : taskComparisonXCoordinate(
+          task.comparisonDates.start,
+          startDate,
+          viewMode,
+          columnWidth
+        );
 
     const cx2 = rtl
-      ? svgWidth - taskXCoordinate(task.comparisonDates.start, startDate, viewMode, columnWidth)
-      : taskXCoordinate(task.comparisonDates.end, startDate, viewMode, columnWidth);
-
-    console.log('cx1',cx1)
+      ? svgWidth -
+        taskComparisonXCoordinate(
+          task.comparisonDates.start,
+          startDate,
+          viewMode,
+          columnWidth
+        )
+      : taskComparisonXCoordinate(
+          task.comparisonDates.end,
+          startDate,
+          viewMode,
+          columnWidth
+        );
 
     comparisonDates = {
-      x: cx1 - columnWidth,
-      y: rowHeight - 12,
+      x: cx1,
+      y: y + taskHeight,
       width: Math.max(cx2 - cx1, 0),
-    }
+      height: barComparisonTaskHeight,
+    };
   }
 
   return {

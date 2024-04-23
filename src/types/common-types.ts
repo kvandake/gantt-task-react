@@ -107,6 +107,7 @@ export interface Distances {
    */
   barFill: number;
   columnWidth: number;
+  barComparisonTaskHeight: number;
   contextMenuIconWidth: number;
   contextMenuOptionHeight: number;
   contextMenuSidePadding: number;

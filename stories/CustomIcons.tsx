@@ -19,6 +19,7 @@ const icons: GanttRenderIconsProps = {
   renderEditIcon: () => <>🗃</>,
   renderNoChildrenIcon: () => <>🥳</>,
   renderOpenedIcon: () => <>📂</>,
+  renderDragIndicatorIcon: () => <>📂</>,
 };
 
 const distances: Partial<Distances> = {

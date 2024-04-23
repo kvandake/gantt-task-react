@@ -93,7 +93,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
     if (ideaTask && ideaTask.type === "task") {
       ideaTask.comparisonDates = {
         start: addDays(ideaTask.start, 1),
-        end: addDays(ideaTask.end, 7),
+        end: addDays(ideaTask.end, 0),
       };
     }
 
@@ -167,7 +167,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
     <>
       <Gantt
         {...props}
-        viewMode={ViewMode.Week}
+        viewMode={ViewMode.Day}
         columns={displayedColumns}
         taskBar={{
           onClick: handleClick,

@@ -230,8 +230,6 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           height={fullRowHeight}
           key={key}
         >
-          {comparisonDates && <BarComparison {...comparisonDates} />}
-
           <TaskItem
             movingAction={taskBarMovingAction(task)}
             allowMoveTaskBar={allowMoveTaskBar}
@@ -270,6 +268,38 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           />
         </svg>
       );
+
+      if (task.comparisonDates && comparisonDates) {
+        tasksRes.push(
+          <svg
+            id={task.id + "_comparison"}
+            key={key + "_comparison"}
+            className={"TaskItemWrapperComparison"}
+            x={Math.max(comparisonDates.x + (additionalLeftSpace || 0), 0)}
+            y={comparisonDates.y}
+            width={comparisonDates.width}
+            height={comparisonDates.height * 2}
+          >
+            <BarComparison
+              isPlan={
+                (task.comparisonDates.start.getTime() >= task.start.getTime() &&
+                  task.comparisonDates.end.getTime() <= task.end.getTime()) ||
+                (task.comparisonDates.start.getTime() <= task.start.getTime() &&
+                  task.comparisonDates.end.getTime() <= task.start.getTime())
+              }
+              isWarning={
+                task.comparisonDates.end.getTime() >= task.end.getTime()
+              }
+              isCritical={
+                task.comparisonDates.start.getTime() > task.start.getTime()
+              }
+              barCornerRadius={distances.barCornerRadius}
+              height={comparisonDates.height}
+              width={comparisonDates.width}
+            />
+          </svg>
+        );
+      }
 
       const addedDependenciesAtLevel = addedDependencies[comparisonLevel] || {};
       if (!addedDependencies[comparisonLevel]) {

@@ -37,6 +37,12 @@ export interface ColorStyles {
   loadingSecondaryColor: string;
 
   arrowCriticalColor: string;
+
+  barComparisonDefaultColor: string;
+  barComparisonPlanColor: string;
+  barComparisonWarningColor: string;
+  barComparisonCriticalColor: string;
+
   barHandleColor: string;
   barProgressColor: string;
   barProgressCriticalColor: string;

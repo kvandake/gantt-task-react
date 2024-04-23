@@ -29,6 +29,11 @@ export const GanttThemeProvider: React.FC<GanttThemeProps> = ({
       "--gantt-loading-primary-color": colors.loadingPrimaryColor,
       "--gantt-loading-secondary-color": colors.loadingSecondaryColor,
 
+      "--gantt-bar-comparison-default-color": colors.barComparisonDefaultColor,
+      "--gantt-bar-comparison-plan-color": colors.barComparisonPlanColor,
+      "--gantt-bar-comparison-warning-color": colors.barComparisonWarningColor,
+      "--gantt-bar-comparison-critical-color": colors.barComparisonCriticalColor,
+
       "--gantt-bar-progress-color": colors.barProgressColor,
       "--gantt-bar-handle-color": colors.barHandleColor,
       "--gantt-bar-progress-critical-color": colors.barProgressCriticalColor,

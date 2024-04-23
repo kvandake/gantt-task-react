@@ -60,6 +60,11 @@ export type TaskComparisonDatesCoordinates = {
    * Width of the comparison task
    */
   width: number;
+
+  /**
+   * Height of the comparison task
+   */
+  height: number;
 }
 
 export type TaskCoordinates = {

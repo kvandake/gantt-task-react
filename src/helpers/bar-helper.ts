@@ -19,6 +19,22 @@ export const taskXCoordinate = (
   return index * columnWidth + percentOfInterval * columnWidth;
 };
 
+export const taskComparisonXCoordinate = (
+  xDate: Date,
+  startDate: Date,
+  viewMode: ViewMode,
+  columnWidth: number
+) => {
+  const index = getDatesDiff(xDate, startDate, viewMode);
+
+  const currentDate = getDateByOffset(startDate, index, viewMode);
+  const nextDate = getDateByOffset(startDate, index + 1, viewMode);
+
+  const remainderMillis = xDate.getTime() - currentDate.getTime();
+  const percentOfInterval = remainderMillis / (nextDate.getTime() - currentDate.getTime());
+  return (index - 1) * columnWidth + percentOfInterval * columnWidth;
+};
+
 export const progressWithByParams = (
   taskX1: number,
   taskX2: number,

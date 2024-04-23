@@ -40,6 +40,11 @@ export const DEFAULT_THEME: GanttTheme = {
 
     arrowCriticalColor: "#F44336",
 
+    barComparisonDefaultColor: "#BDBDBD",
+    barComparisonPlanColor: "#66BB6A",
+    barComparisonWarningColor: "#FFA726",
+    barComparisonCriticalColor: "#F44336",
+
     barBackgroundColor: "#BDBDBD",
     barBackgroundSelectedColor: "#9E9E9E",
     barBackgroundCriticalColor: "#757575",
@@ -85,7 +90,8 @@ export const DEFAULT_THEME: GanttTheme = {
     actionColumnWidth: 40,
     arrowIndent: 20,
     barCornerRadius: 3,
-    barFill: 60,
+    barComparisonTaskHeight: 4,
+    barFill: 50,
     columnWidth: 60,
     contextMenuIconWidth: 20,
     contextMenuOptionHeight: 25,
@@ -100,7 +106,7 @@ export const DEFAULT_THEME: GanttTheme = {
     nestedTaskNameOffset: 20,
     relationCircleOffset: 10,
     relationCircleRadius: 5,
-    rowHeight: 50,
+    rowHeight: 52,
     titleCellWidth: 220,
 
     viewModeYearOffsetYears: 2,

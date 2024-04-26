@@ -2,7 +2,6 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-left: 20px;
   position: relative;
 }
 
@@ -30,4 +29,5 @@
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  margin-left: 8px;
 }

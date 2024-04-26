@@ -46,6 +46,8 @@ export const TitleColumn: React.FC<ColumnProps> = ({
 }) => {
   const { name } = task;
 
+  const isProject = task.type === "project";
+
   const expanderSymbol = useMemo(
     () => getExpanderSymbol(hasChildren, isClosed, expandIconWidth, icons),
     [hasChildren, isClosed, expandIconWidth, icons]
@@ -80,7 +82,10 @@ export const TitleColumn: React.FC<ColumnProps> = ({
         {expanderSymbol}
       </div>
 
-      <div className={styles.taskName}>
+      <div
+        className={styles.taskName}
+        style={{ fontWeight: isProject ? "bold" : 'regular' }}
+      >
         {isShowTaskNumbers && <b>{indexStr} </b>}
 
         {name}

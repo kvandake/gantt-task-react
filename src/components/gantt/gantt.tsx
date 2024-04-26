@@ -595,7 +595,6 @@ export const Gantt: React.FC<GanttProps> = props => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const { columnWidth, rowHeight } = distances;
 
-    event.preventDefault();
     let newScrollY = scrollY;
     let newScrollX = scrollX;
     let isX = true;
@@ -604,19 +603,23 @@ export const Gantt: React.FC<GanttProps> = props => {
       case "ArrowDown":
         newScrollY += rowHeight;
         isX = false;
+        event.preventDefault();
         break;
       case "Up": // IE/Edge specific value
       case "ArrowUp":
         newScrollY -= rowHeight;
         isX = false;
+        event.preventDefault();
         break;
       case "Left":
       case "ArrowLeft":
         newScrollX -= columnWidth;
+        event.preventDefault();
         break;
       case "Right": // IE/Edge specific value
       case "ArrowRight":
         newScrollX += columnWidth;
+        event.preventDefault();
         break;
     }
     if (isX) {

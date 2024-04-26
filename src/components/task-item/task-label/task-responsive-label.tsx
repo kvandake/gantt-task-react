@@ -16,6 +16,7 @@ const TaskResponsiveLabelInner: React.FC<Props> = props => {
     taskYOffset,
     width,
     x1,
+    viewMode,
   } = props;
 
   const textRef = useRef<SVGTextElement>(null);
@@ -25,7 +26,7 @@ const TaskResponsiveLabelInner: React.FC<Props> = props => {
     if (textRef.current) {
       setIsTextInside(textRef.current.getBBox().width < width);
     }
-  }, [textRef, width]);
+  }, [textRef, width, viewMode]);
 
   const calculatedX = useMemo(() => {
     if (isTextInside && !alwaysOutline) {

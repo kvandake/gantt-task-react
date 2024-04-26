@@ -10,7 +10,7 @@ import {
   RenderCustomLabel,
   Task,
   TaskBarMoveAction,
-  RenderTask,
+  RenderTask, ViewMode
 } from "../../types";
 import { Bar } from "./bar";
 import { Milestone } from "./milestone";
@@ -58,6 +58,7 @@ export interface TaskItemProps
   onTooltipTask: (task: Task | null, element: Element | null) => void;
 
   renderCustomLabel?: RenderCustomLabel;
+  viewMode: ViewMode;
 }
 
 const TaskItemInner: React.FC<TaskItemProps> = props => {
@@ -85,6 +86,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
     x1,
     x2,
     allowMoveTaskBar,
+    viewMode,
     renderCustomLabel,
   } = props;
 
@@ -302,6 +304,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
           rtl={rtl}
           label={task.name}
           taskYOffset={taskYOffset}
+          viewMode={viewMode}
         />
       )}
     </g>

@@ -1497,8 +1497,10 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskHeight,
       taskYOffset,
       visibleTasksMirror,
+      viewMode,
     }),
     [
+      viewMode,
       taskBar,
       authorizedRelations,
       additionalLeftSpace,

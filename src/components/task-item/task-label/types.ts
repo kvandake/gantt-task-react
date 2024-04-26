@@ -1,3 +1,5 @@
+import { ViewMode } from "../../../types";
+
 export interface TaskLabelProps {
   label: string | null;
   taskYOffset: number;
@@ -6,4 +8,5 @@ export interface TaskLabelProps {
   taskHeight: number;
   arrowIndent: number;
   rtl: boolean;
+  viewMode: ViewMode;
 }

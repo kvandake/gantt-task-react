@@ -17,6 +17,7 @@ import {
   Task,
   TaskBarMoveAction,
   TaskCoordinates,
+  ViewMode,
 } from "../../types";
 import { Arrow } from "../other/arrow";
 import { RelationLine } from "../other/relation-line";
@@ -70,6 +71,7 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   isDateChangeable?: (task: Task) => boolean;
   isRelationChangeable?: (task: Task) => boolean;
   taskBarMovingAction: (task: RenderTask) => TaskBarMoveAction | null;
+  viewMode: ViewMode;
 }
 
 const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
@@ -111,6 +113,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
   renderCustomLabel,
   taskBarMovingAction,
   waitCommitTasks,
+  viewMode,
 }) => {
   const renderedHolidays = useMemo(() => {
     const { columnWidth } = distances;
@@ -265,6 +268,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             rtl={rtl}
             onDeleteTask={onDeleteTask}
             renderCustomLabel={renderCustomLabel}
+            viewMode={viewMode}
           />
         </svg>
       );
@@ -466,6 +470,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
 
     return [tasksRes, arrowsRes, selectedTasksRes];
   }, [
+    viewMode,
     renderedRowIndexes,
     mapGlobalRowIndexToTask,
     selectedIdsMirror,

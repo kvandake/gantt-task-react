@@ -101,7 +101,7 @@ export const DEFAULT_THEME: GanttTheme = {
     expandIconWidth: 20,
     handleWidth: 8,
     headerHeight: 50,
-    ganttHeight: undefined,
+    ganttHeight: 600,
     minimumRowDisplayed: 4,
     nestedTaskNameOffset: 20,
     relationCircleOffset: 10,

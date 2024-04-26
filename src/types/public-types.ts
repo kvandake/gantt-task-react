@@ -28,6 +28,7 @@ export type RenderCustomLabel = (
   arrowIndent: number,
   taskYOffset: number,
   movingAction: TaskBarMoveAction | null,
+  viewMode: ViewMode,
   rtl?: boolean
 ) => ReactNode;
 
@@ -221,6 +222,16 @@ export interface GanttTaskListProps {
    * Can reorder tasks
    */
   onResizeColumn?: OnResizeColumn;
+
+  /**
+   * Render bottom table content
+   */
+  tableBottom?: TableRenderBottomProps;
+}
+
+export interface TableRenderBottomProps {
+  height?: number;
+  renderContent?: () => ReactNode;
 }
 
 export interface GanttTaskBarProps extends GanttTaskBarActions {

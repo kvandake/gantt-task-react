@@ -14,6 +14,7 @@ import {
   Task,
   TaskListTableRowProps,
   RenderTask,
+  TableRenderBottomProps,
 } from "../../types";
 
 import { useOptimizedList } from "../../helpers/use-optimized-list";
@@ -64,6 +65,7 @@ export type TaskListProps = {
   taskListRef: RefObject<HTMLDivElement>;
   tasks: readonly RenderTask[];
   onResizeColumn?: OnResizeColumn;
+  tableBottom?: TableRenderBottomProps;
 };
 
 const TaskListInner: React.FC<TaskListProps> = ({
@@ -100,6 +102,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
   tasks,
   onResizeColumn,
   canReorderTasks,
+  tableBottom,
 }) => {
   // Manage the column and list table resizing
   const [
@@ -108,7 +111,12 @@ const TaskListInner: React.FC<TaskListProps> = ({
     tableWidth,
     onTableResizeStart,
     onColumnResizeStart,
-  ] = useTableListResize(columnsProp, canReorderTasks, onResizeColumn, ganttRef);
+  ] = useTableListResize(
+    columnsProp,
+    canReorderTasks,
+    onResizeColumn,
+    ganttRef
+  );
 
   const renderedIndexes = useOptimizedList(
     taskListContainerRef,
@@ -209,7 +217,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
             className={styles.horizontalContainer}
             style={{
               height: Math.max(
-                ganttHeight,
+                ganttHeight - (tableBottom?.height || 0),
                 distances.minimumRowDisplayed * distances.rowHeight
               ),
               width: taskListWidth,
@@ -273,6 +281,12 @@ const TaskListInner: React.FC<TaskListProps> = ({
             }`}
           />
         </div>
+
+        {tableBottom?.renderContent && tableBottom?.height && (
+          <div style={{ height: tableBottom.height, width: "100%" }}>
+            {tableBottom.renderContent()}
+          </div>
+        )}
       </div>
 
       <div

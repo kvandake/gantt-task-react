@@ -293,6 +293,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
           arrowIndent,
           taskYOffset,
           movingAction,
+          viewMode,
           rtl
         )
       ) : (

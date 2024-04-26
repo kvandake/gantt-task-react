@@ -295,8 +295,8 @@ export const Gantt: React.FC<GanttProps> = props => {
   }, [visibleTasks, comparisonLevels]);
 
   const ganttFullHeight = useMemo(
-    () => maxLevelLength * fullRowHeight,
-    [maxLevelLength, fullRowHeight]
+    () => maxLevelLength * fullRowHeight + (taskList?.tableBottom?.height || 0),
+    [maxLevelLength, fullRowHeight, taskList?.tableBottom?.height]
   );
 
   const ganttHeight = useMemo(

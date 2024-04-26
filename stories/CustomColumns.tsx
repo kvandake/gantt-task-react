@@ -180,12 +180,14 @@ export const CustomColumns: React.FC<AppProps> = props => {
             arrowIndent,
             taskYOffset,
             movingAction,
+            viewMode,
             rtl
           ) => (
             <>
               {movingAction !== "start" && movingAction !== "end" && (
                 <TaskCenterLabel
                   hideWhenSmall
+                  viewMode={viewMode}
                   x1={x1}
                   rtl={rtl}
                   taskHeight={taskHeight}
@@ -201,6 +203,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
               )}
 
               <TaskOutlineLabel
+                viewMode={viewMode}
                 x1={x1}
                 rtl={rtl}
                 taskHeight={taskHeight}
@@ -214,6 +217,18 @@ export const CustomColumns: React.FC<AppProps> = props => {
         }}
         taskList={{
           onResizeColumn: onResizeColumn,
+          tableBottom: {
+            height: 90,
+            renderContent: () => (
+              <div style={{ backgroundColor: "red", height: '100%' }}>Table bottom content</div>
+            ),
+          },
+        }}
+        theme={{
+          distances: {
+            ganttHeight: 600,
+            minimumRowDisplayed: 0,
+          }
         }}
         onAddTaskAction={onAddTask}
         onCommitTasks={onCommitTasks}

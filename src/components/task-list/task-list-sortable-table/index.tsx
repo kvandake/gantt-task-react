@@ -1,9 +1,17 @@
 import type { ReactNode } from "react";
-import React, { memo, useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { TaskListTableProps, RenderTask } from "../../../types";
 import {
   Announcements,
   closestCenter,
+  CollisionDetection,
   defaultDropAnimationSideEffects,
   DndContext,
   DragEndEvent,
@@ -12,9 +20,12 @@ import {
   DragOverlay,
   DragStartEvent,
   DropAnimation,
+  getFirstCollision,
   KeyboardSensor,
   MeasuringStrategy,
   PointerSensor,
+  pointerWithin,
+  rectIntersection,
   UniqueIdentifier,
   useSensor,
   useSensors,
@@ -73,6 +84,8 @@ const TaskListSortableTableDefaultInner: React.FC<
     onExpanderClick,
   } = props;
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const lastOverId = useRef<UniqueIdentifier | null>(null);
+  const recentlyMovedToNewContainer = useRef(false);
   const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
   const [currentPosition, setCurrentPosition] = useState<{
     parent: UniqueIdentifier | null;
@@ -92,6 +105,66 @@ const TaskListSortableTableDefaultInner: React.FC<
     items: renderedTasks,
     offset: offsetLeft,
   });
+
+  const collisionDetectionStrategy: CollisionDetection = useCallback(
+    args => {
+      const activeTask = tasks.find(x => x.id === activeId);
+      if (activeTask && activeTask.type === "project") {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter(container =>
+            tasks.some(x => x.type === "project" && x.id == container.id)
+          ),
+        });
+      }
+
+      // Start by finding any intersecting droppable
+      const pointerIntersections = pointerWithin(args);
+      const intersections =
+        pointerIntersections.length > 0
+          ? // If there are droppables intersecting with the pointer, return those
+            pointerIntersections
+          : rectIntersection(args);
+      let overId = getFirstCollision(intersections, "id");
+
+      if (overId != null) {
+        const overProject = tasks.find(x => x.type === 'project' && x.id === overId);
+        if (overProject) {
+          const projectItems = tasks.filter(x => x.parent === overProject.id);
+          // If a container is matched and it contains items (columns 'A', 'B', 'C')
+          if (projectItems.length > 0) {
+            // Return the closest droppable within that container
+            overId = closestCenter({
+              ...args,
+              droppableContainers: args.droppableContainers.filter(
+                container =>
+                  container.id !== overId &&
+                  projectItems.some(x => x.id === container.id)
+              ),
+            })[0]?.id;
+          } else {
+            return [{ id: null }];
+          }
+        }
+
+        lastOverId.current = overId;
+
+        return [{ id: overId }];
+      }
+
+      // When a draggable item moves to a new container, the layout may shift
+      // and the `overId` may become `null`. We manually set the cached `lastOverId`
+      // to the id of the draggable item that was moved to the new container, otherwise
+      // the previous `overId` will be returned which can cause items to incorrectly shift positions
+      if (recentlyMovedToNewContainer.current) {
+        lastOverId.current = activeId;
+      }
+
+      // If no droppable is matched, return the last match
+      return lastOverId.current ? [{ id: lastOverId.current }] : [];
+    },
+    [activeId, tasks]
+  );
 
   const getTaskDepth = useCallback(
     (taskId: string | UniqueIdentifier): number => {
@@ -327,11 +400,17 @@ const TaskListSortableTableDefaultInner: React.FC<
     resetState();
   }, [resetState]);
 
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      recentlyMovedToNewContainer.current = false;
+    });
+  }, [tasks]);
+
   return (
     <DndContext
       accessibility={{ announcements }}
       sensors={sensors}
-      collisionDetection={closestCenter}
+      collisionDetection={collisionDetectionStrategy}
       measuring={measuring}
       onDragStart={handleDragStart}
       onDragMove={handleDragMove}

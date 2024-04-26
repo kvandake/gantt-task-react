@@ -222,7 +222,7 @@ export function initTasks() {
         },
       ],
       type: "project",
-      parent: "ProjectSample",
+      parent: undefined,
       isDisabled: true,
       hideChildren: true,
     },
@@ -287,7 +287,7 @@ export function initTasks() {
       id: "party",
       progress: 0,
       isDisabled: true,
-      type: "task",
+      type: "project",
     },
   ];
 

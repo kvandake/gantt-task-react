@@ -75,7 +75,7 @@ export const TitleColumn: React.FC<ColumnProps> = ({
           !hasChildren ? styles.taskListEmptyExpander : ""
         }`}
         style={{
-          left: (depth - 1) * nestedTaskNameOffset,
+          left: depth * nestedTaskNameOffset,
         }}
         onClick={onClick}
       >

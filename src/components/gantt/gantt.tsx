@@ -639,18 +639,6 @@ export const Gantt: React.FC<GanttProps> = props => {
     }
   };
 
-  const onExpanderClick = useCallback((clickedTask: Task) => {
-    //otherwise change the internal state
-    setSortedTasks(prev => {
-      return prev.map(task => {
-        if (clickedTask.id === task.id) {
-          return { ...task, hideChildren: !clickedTask.hideChildren };
-        }
-        return task;
-      });
-    });
-  }, []);
-
   const getMetadata = useCallback(
     (changeAction: ChangeAction) =>
       getChangeTaskMetadata({
@@ -672,6 +660,31 @@ export const Gantt: React.FC<GanttProps> = props => {
       mapTaskToGlobalIndex,
       tasksMap,
     ]
+  );
+
+  const onExpanderClick = useCallback(
+    (clickedTask: Task) => {
+      const [, taskIndexes] = getMetadata({
+        type: "change",
+        task: clickedTask,
+      });
+
+      const taskIndex = taskIndexes[0].index;
+      const prevTasks = [...sortedTasks];
+      const nextTasks = [...prevTasks];
+      const changedTask = {
+        ...clickedTask,
+        hideChildren: !clickedTask.hideChildren,
+      };
+      nextTasks[taskIndex] = changedTask;
+      handleCommitInternal(prevTasks, nextTasks, {
+        type: "expandState_change",
+        payload: {
+          changedTask,
+        },
+      });
+    },
+    [getMetadata, handleCommitInternal, sortedTasks]
   );
 
   /**

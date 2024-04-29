@@ -163,6 +163,8 @@ export const CustomColumns: React.FC<AppProps> = props => {
     });
   };
 
+  console.log('tasks', tasks)
+
   return (
     <>
       <Gantt
@@ -235,6 +237,8 @@ export const CustomColumns: React.FC<AppProps> = props => {
         onEditTaskAction={onEditTask}
         tasks={tasks}
         isAdjustToWorkingDates={false}
+        roundStartDate={(date) => date}
+        roundEndDate={(date) => date}
       />
     </>
   );

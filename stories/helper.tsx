@@ -16,13 +16,7 @@ export function initTasksWithoutProject() {
   const tasks: RenderTask[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        2,
-        12,
-        28
-      ),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
       name: "Idea",
       id: "Idea",
       progress: 45,
@@ -151,13 +145,7 @@ export function initTasks() {
     },
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
-      end: new Date(
-        currentDate.getFullYear(),
-        currentDate.getMonth(),
-        2,
-        12,
-        28
-      ),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 2),
       name: "Idea",
       id: "Idea",
       progress: 45,

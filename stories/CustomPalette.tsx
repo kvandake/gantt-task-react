@@ -158,6 +158,9 @@ export const CustomPalette: React.FC<AppProps> = props => {
       onAddTaskAction={onAddTask}
       onCommitTasks={onChangeTasks}
       onDoubleClick={handleDblClick}
+      onSelectTaskIds={(taskIds) => {
+        console.log('taskIds', taskIds);
+      }}
       onEditTaskAction={onEditTask}
       onClick={handleClick}
       tasks={tasks}

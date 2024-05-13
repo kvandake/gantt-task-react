@@ -12,6 +12,7 @@ import {
   TaskBarMoveAction,
   RenderTask,
   ViewMode,
+  TaskId,
 } from "./common-types";
 
 export type RenderTopHeader = (
@@ -398,6 +399,11 @@ export interface GanttProps {
    * Callback for getting new data of the edited task
    */
   onEditTaskAction?: (task: RenderTask) => Promise<RenderTask | null>;
+
+  /**
+   * Callback for select task
+   */
+  onSelectTaskIds?: (taskIds: TaskId[]) => void;
 
   /**
    * Invokes on wheel event

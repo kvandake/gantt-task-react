@@ -1,11 +1,11 @@
-import type { MouseEvent } from "react";
+import { MouseEvent, useEffect } from "react";
 import { useCallback, useRef, useState } from "react";
 
-import type {
+import {
   CheckTaskIdExistsAtLevel,
   RowIndexToTaskMap,
   RenderTask,
-  TaskToRowIndexMap,
+  TaskToRowIndexMap, TaskId,
 } from "../../types";
 
 const initialValue = {};
@@ -13,7 +13,8 @@ const initialValue = {};
 export const useSelection = (
   taskToRowIndexMap: TaskToRowIndexMap,
   rowIndexToTaskMap: RowIndexToTaskMap,
-  checkTaskIdExists: CheckTaskIdExistsAtLevel
+  checkTaskIdExists: CheckTaskIdExistsAtLevel,
+  onSelectTaskIds?: (taskIds: TaskId[]) => void,
 ) => {
   const [cutIdsMirror, setCutIdsMirror] =
     useState<Readonly<Record<string, true>>>(initialValue);
@@ -64,7 +65,7 @@ export const useSelection = (
 
       lastSelectedIdRef.current = taskId;
     },
-    []
+    [],
   );
 
   const selectTasksFromLastSelected = useCallback(
@@ -128,7 +129,7 @@ export const useSelection = (
 
       lastSelectedIdRef.current = taskId;
     },
-    [rowIndexToTaskMap, taskToRowIndexMap, toggleTask]
+    [rowIndexToTaskMap, taskToRowIndexMap, toggleTask],
   );
 
   const resetSelectedTasks = useCallback(() => {
@@ -152,7 +153,7 @@ export const useSelection = (
 
       selectTask(taskId);
     },
-    [selectTask, selectTasksFromLastSelected, toggleTask]
+    [selectTask, selectTasksFromLastSelected, toggleTask],
   );
 
   const cutTask = useCallback((task: RenderTask) => {
@@ -180,14 +181,21 @@ export const useSelection = (
   const checkHasCopyTasks = useCallback(
     () =>
       Object.keys(copyIdsMirror).some(taskId => checkTaskIdExists(taskId, 1)),
-    [checkTaskIdExists, copyIdsMirror]
+    [checkTaskIdExists, copyIdsMirror],
   );
 
   const checkHasCutTasks = useCallback(
     () =>
       Object.keys(cutIdsMirror).some(taskId => checkTaskIdExists(taskId, 1)),
-    [checkTaskIdExists, cutIdsMirror]
+    [checkTaskIdExists, cutIdsMirror],
   );
+
+  useEffect(() => {
+    if (onSelectTaskIds) {
+      const selectedTaskIds = Object.keys(selectedIdsMirror).filter(x => selectedIdsMirror[x]);
+      onSelectTaskIds(selectedTaskIds);
+    }
+  }, [onSelectTaskIds, selectedIdsMirror]);
 
   return {
     checkHasCopyTasks,

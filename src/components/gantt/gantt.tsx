@@ -113,6 +113,7 @@ export const Gantt: React.FC<GanttProps> = props => {
     onCommitTasks,
     onAddTaskAction,
     onEditTaskAction,
+    onSelectTaskIds,
     onWheel,
 
     roundEndDate: clientRoundEndDate = defaultRoundEndDate,
@@ -325,7 +326,7 @@ export const Gantt: React.FC<GanttProps> = props => {
     resetSelectedTasks,
     selectTaskOnMouseDown,
     selectedIdsMirror,
-  } = useSelection(taskToRowIndexMap, rowIndexToTaskMap, checkTaskIdExists);
+  } = useSelection(taskToRowIndexMap, rowIndexToTaskMap, checkTaskIdExists, onSelectTaskIds);
 
   const [startDate, minTaskDate, datesLength] = useMemo(
     () =>

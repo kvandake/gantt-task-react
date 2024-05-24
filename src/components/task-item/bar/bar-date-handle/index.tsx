@@ -35,6 +35,7 @@ export const BarDateHandle: React.FC<BarDateHandleProps> = ({
         startMove(e.clientX);
       }}
       onTouchStart={e => {
+        e.preventDefault();
         const firstTouch = e.touches[0];
 
         if (firstTouch) {

@@ -92,8 +92,9 @@ export const CustomColumns: React.FC<AppProps> = props => {
     const ideaTask = stateTasks.find(task => task.id === "Idea");
     if (ideaTask && ideaTask.type === "task") {
       ideaTask.comparisonDates = {
-        start: addDays(ideaTask.start, 1),
+        start: addDays(ideaTask.start, -1),
         end: addDays(ideaTask.end, 0),
+        // end: null // addDays(ideaTask.end, 0),
       };
     }
 

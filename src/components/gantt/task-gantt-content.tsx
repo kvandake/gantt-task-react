@@ -49,7 +49,7 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
     action: TaskBarMoveAction,
     task: Task,
     clientX: number,
-    taskRootNode: Element
+    taskRootNode: Element,
   ) => void;
   mapGlobalRowIndexToTask: GlobalRowIndexToTaskMap;
   onArrowDoubleClick: (taskFrom: Task, taskTo: Task) => void;
@@ -75,46 +75,46 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
 }
 
 const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
-  authorizedRelations,
-  additionalLeftSpace,
-  checkIsHoliday,
-  childTasksMap,
-  comparisonLevels,
-  criticalPaths,
-  dependencyMap,
-  dependentMap,
-  distances,
-  endColumnIndex,
-  fullRowHeight,
-  ganttRelationEvent,
-  getDate,
-  getTaskCoordinates,
-  onTaskBarRelationStart,
-  onDeleteTask,
-  onTaskBarDragStart,
-  mapGlobalRowIndexToTask,
-  onArrowDoubleClick,
-  onDoubleClick,
-  onClick,
-  renderedRowIndexes,
-  rtl,
-  selectTaskOnMouseDown,
-  selectedIdsMirror,
-  onTooltipTask,
-  startColumnIndex,
-  taskYOffset,
-  taskHeight,
-  taskHalfHeight,
-  visibleTasksMirror,
-  isProgressChangeable = task => !task.isDisabled,
-  isDateChangeable = task => !task.isDisabled,
-  isRelationChangeable = task => !task.isDisabled,
-  allowMoveTaskBar,
-  renderCustomLabel,
-  taskBarMovingAction,
-  waitCommitTasks,
-  viewMode,
-}) => {
+                                                                  authorizedRelations,
+                                                                  additionalLeftSpace,
+                                                                  checkIsHoliday,
+                                                                  childTasksMap,
+                                                                  comparisonLevels,
+                                                                  criticalPaths,
+                                                                  dependencyMap,
+                                                                  dependentMap,
+                                                                  distances,
+                                                                  endColumnIndex,
+                                                                  fullRowHeight,
+                                                                  ganttRelationEvent,
+                                                                  getDate,
+                                                                  getTaskCoordinates,
+                                                                  onTaskBarRelationStart,
+                                                                  onDeleteTask,
+                                                                  onTaskBarDragStart,
+                                                                  mapGlobalRowIndexToTask,
+                                                                  onArrowDoubleClick,
+                                                                  onDoubleClick,
+                                                                  onClick,
+                                                                  renderedRowIndexes,
+                                                                  rtl,
+                                                                  selectTaskOnMouseDown,
+                                                                  selectedIdsMirror,
+                                                                  onTooltipTask,
+                                                                  startColumnIndex,
+                                                                  taskYOffset,
+                                                                  taskHeight,
+                                                                  taskHalfHeight,
+                                                                  visibleTasksMirror,
+                                                                  isProgressChangeable = task => !task.isDisabled,
+                                                                  isDateChangeable = task => !task.isDisabled,
+                                                                  isRelationChangeable = task => !task.isDisabled,
+                                                                  allowMoveTaskBar,
+                                                                  renderCustomLabel,
+                                                                  taskBarMovingAction,
+                                                                  waitCommitTasks,
+                                                                  viewMode,
+                                                                }) => {
   const renderedHolidays = useMemo(() => {
     const { columnWidth } = distances;
 
@@ -132,7 +132,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             y={0}
             fill={"var(--gantt-calendar-holiday-color)"}
             key={i}
-          />
+          />,
         );
       }
     }
@@ -188,7 +188,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             height={fullRowHeight}
             fill={"var(--gantt-table-selected-task-background-color)"}
             key={taskId}
-          />
+          />,
         );
       }
 
@@ -270,7 +270,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             renderCustomLabel={renderCustomLabel}
             viewMode={viewMode}
           />
-        </svg>
+        </svg>,
       );
 
       if (task.comparisonDates && comparisonDates) {
@@ -285,14 +285,15 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             height={comparisonDates.height * 2}
           >
             <BarComparison
+              inProgress={!task.comparisonDates.end}
               isPlan={
                 (task.comparisonDates.start.getTime() >= task.start.getTime() &&
-                  task.comparisonDates.end.getTime() <= task.end.getTime()) ||
+                  (!!task.comparisonDates.end && task.comparisonDates.end.getTime() <= task.end.getTime())) ||
                 (task.comparisonDates.start.getTime() <= task.start.getTime() &&
-                  task.comparisonDates.end.getTime() <= task.start.getTime())
+                  (!!task.comparisonDates.end && task.comparisonDates.end.getTime() <= task.start.getTime()))
               }
               isWarning={
-                task.comparisonDates.end.getTime() >= task.end.getTime()
+                !!task.comparisonDates.end && task.comparisonDates.end.getTime() >= task.end.getTime()
               }
               isCritical={
                 task.comparisonDates.start.getTime() > task.start.getTime()
@@ -300,8 +301,10 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
               barCornerRadius={distances.barCornerRadius}
               height={comparisonDates.height}
               width={comparisonDates.width}
+              borderHeight={distances.barComparisonTaskBorderHeight}
+              yOffset={distances.barComparisonTaskYOffset}
             />
-          </svg>
+          </svg>,
         );
       }
 
@@ -332,14 +335,14 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           .filter(({ source }) => visibleTasksMirror[source.id])
           .forEach(
             ({
-              containerHeight,
-              containerY,
-              innerFromY,
-              innerToY,
-              ownTarget,
-              source,
-              sourceTarget,
-            }) => {
+               containerHeight,
+               containerY,
+               innerFromY,
+               innerToY,
+               ownTarget,
+               source,
+               sourceTarget,
+             }) => {
               if (addedDependenciesAtTask[source.id]) {
                 return;
               }
@@ -382,9 +385,9 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
                     rtl={rtl}
                     onArrowDoubleClick={onArrowDoubleClick}
                   />
-                </svg>
+                </svg>,
               );
-            }
+            },
           );
       }
 
@@ -401,14 +404,14 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           .filter(({ dependent }) => visibleTasksMirror[dependent.id])
           .forEach(
             ({
-              containerHeight,
-              containerY,
-              innerFromY,
-              innerToY,
-              ownTarget,
-              dependent,
-              dependentTarget,
-            }) => {
+               containerHeight,
+               containerY,
+               innerFromY,
+               innerToY,
+               ownTarget,
+               dependent,
+               dependentTarget,
+             }) => {
               const addedDependenciesAtDependent =
                 addedDependenciesAtLevel[dependent.id] || {};
               if (!addedDependenciesAtLevel[dependent.id]) {
@@ -461,9 +464,9 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
                     rtl={rtl}
                     onArrowDoubleClick={onArrowDoubleClick}
                   />
-                </svg>
+                </svg>,
               );
-            }
+            },
           );
       }
     }

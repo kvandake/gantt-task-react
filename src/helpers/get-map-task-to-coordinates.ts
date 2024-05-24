@@ -78,7 +78,7 @@ export const countTaskCoordinates = (
     const cx1 = rtl
       ? svgWidth -
         taskComparisonXCoordinate(
-          task.comparisonDates.end,
+          task.comparisonDates.end || task.end,
           startDate,
           viewMode,
           columnWidth
@@ -99,7 +99,7 @@ export const countTaskCoordinates = (
           columnWidth
         )
       : taskComparisonXCoordinate(
-          task.comparisonDates.end,
+          task.comparisonDates.end || task.end,
           startDate,
           viewMode,
           columnWidth

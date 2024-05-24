@@ -4,17 +4,23 @@ import { TaskComparisonDatesCoordinates } from "../../../types";
 
 interface Props extends Omit<TaskComparisonDatesCoordinates, "x" | "y"> {
   barCornerRadius: number;
+  borderHeight: number;
+  yOffset: number;
   isWarning?: boolean;
   isPlan?: boolean;
   isCritical?: boolean;
+  inProgress?: boolean;
 }
 
 export const BarComparison: React.FC<Props> = props => {
-  const { barCornerRadius, isWarning, isPlan, isCritical, width, height } =
+  const { yOffset, borderHeight, barCornerRadius, isWarning, isPlan, isCritical, width, height, inProgress } =
     props;
   const lineHeight = useMemo(() => Math.max(height, 4), [height]);
 
   const barColor = useMemo(() => {
+    if (inProgress) {
+      return "var(--gantt-bar-comparison-default-color)";
+    }
     if (isPlan) {
       return "var(--gantt-bar-comparison-plan-color)";
     }
@@ -26,15 +32,15 @@ export const BarComparison: React.FC<Props> = props => {
       return "var(--gantt-bar-comparison-warning-color)";
     }
     return "var(--gantt-bar-comparison-default-color)";
-  }, [isCritical, isPlan, isWarning]);
+  }, [inProgress, isCritical, isPlan, isWarning]);
 
   return (
     <g>
       <rect
         x={0}
         width={width}
-        y={lineHeight}
-        height={height}
+        y={borderHeight + yOffset}
+        height={lineHeight}
         ry={barCornerRadius}
         rx={barCornerRadius}
         fill={barColor}
@@ -43,17 +49,19 @@ export const BarComparison: React.FC<Props> = props => {
       <rect
         x={0}
         fill={barColor}
-        y={lineHeight * 0.5}
+        y={yOffset}
         width={height}
-        height={lineHeight}
+        height={borderHeight + lineHeight - yOffset}
       />
-      <rect
-        x={width - height}
-        fill={barColor}
-        y={lineHeight * 0.5}
-        width={height}
-        height={lineHeight}
-      />
+      {!inProgress && (
+        <rect
+          x={width - height}
+          fill={barColor}
+          y={yOffset}
+          width={height}
+          height={borderHeight + lineHeight - yOffset}
+        />
+      )}
     </g>
   );
 };

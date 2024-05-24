@@ -63,7 +63,7 @@ export interface Task {
   dependencies?: Dependency[];
   comparisonDates?: {
     start: Date;
-    end: Date;
+    end: Date | null;
   }
   hideChildren?: boolean;
   displayOrder?: number;
@@ -108,6 +108,8 @@ export interface Distances {
   barFill: number;
   columnWidth: number;
   barComparisonTaskHeight: number;
+  barComparisonTaskBorderHeight: number;
+  barComparisonTaskYOffset: number;
   contextMenuIconWidth: number;
   contextMenuOptionHeight: number;
   contextMenuSidePadding: number;

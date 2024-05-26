@@ -1,5 +1,4 @@
-import type { MouseEvent, ReactNode } from "react";
-import React, { memo, useMemo } from "react";
+import React, { memo, MouseEvent, ReactNode, useMemo } from "react";
 
 import {
   ChildByLevelMap,
@@ -74,47 +73,49 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   viewMode: ViewMode;
 }
 
-const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
-                                                                  authorizedRelations,
-                                                                  additionalLeftSpace,
-                                                                  checkIsHoliday,
-                                                                  childTasksMap,
-                                                                  comparisonLevels,
-                                                                  criticalPaths,
-                                                                  dependencyMap,
-                                                                  dependentMap,
-                                                                  distances,
-                                                                  endColumnIndex,
-                                                                  fullRowHeight,
-                                                                  ganttRelationEvent,
-                                                                  getDate,
-                                                                  getTaskCoordinates,
-                                                                  onTaskBarRelationStart,
-                                                                  onDeleteTask,
-                                                                  onTaskBarDragStart,
-                                                                  mapGlobalRowIndexToTask,
-                                                                  onArrowDoubleClick,
-                                                                  onDoubleClick,
-                                                                  onClick,
-                                                                  renderedRowIndexes,
-                                                                  rtl,
-                                                                  selectTaskOnMouseDown,
-                                                                  selectedIdsMirror,
-                                                                  onTooltipTask,
-                                                                  startColumnIndex,
-                                                                  taskYOffset,
-                                                                  taskHeight,
-                                                                  taskHalfHeight,
-                                                                  visibleTasksMirror,
-                                                                  isProgressChangeable = task => !task.isDisabled,
-                                                                  isDateChangeable = task => !task.isDisabled,
-                                                                  isRelationChangeable = task => !task.isDisabled,
-                                                                  allowMoveTaskBar,
-                                                                  renderCustomLabel,
-                                                                  taskBarMovingAction,
-                                                                  waitCommitTasks,
-                                                                  viewMode,
-                                                                }) => {
+const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
+  const {
+    authorizedRelations,
+    additionalLeftSpace,
+    checkIsHoliday,
+    childTasksMap,
+    comparisonLevels,
+    criticalPaths,
+    dependencyMap,
+    dependentMap,
+    distances,
+    endColumnIndex,
+    fullRowHeight,
+    ganttRelationEvent,
+    getDate,
+    getTaskCoordinates,
+    onTaskBarRelationStart,
+    onDeleteTask,
+    onTaskBarDragStart,
+    mapGlobalRowIndexToTask,
+    onArrowDoubleClick,
+    onDoubleClick,
+    onClick,
+    renderedRowIndexes,
+    rtl,
+    selectTaskOnMouseDown,
+    selectedIdsMirror,
+    onTooltipTask,
+    startColumnIndex,
+    taskYOffset,
+    taskHeight,
+    taskHalfHeight,
+    visibleTasksMirror,
+    isProgressChangeable = task => !task.isDisabled,
+    isDateChangeable = task => !task.isDisabled,
+    isRelationChangeable = task => !task.isDisabled,
+    allowMoveTaskBar,
+    renderCustomLabel,
+    taskBarMovingAction,
+    waitCommitTasks,
+    viewMode,
+  } = props;
+
   const renderedHolidays = useMemo(() => {
     const { columnWidth } = distances;
 
@@ -132,6 +133,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             y={0}
             fill={"var(--gantt-calendar-holiday-color)"}
             key={i}
+            pointerEvents={'none'}
           />,
         );
       }
@@ -188,6 +190,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
             height={fullRowHeight}
             fill={"var(--gantt-table-selected-task-background-color)"}
             key={taskId}
+            pointerEvents={'none'}
           />,
         );
       }
@@ -229,7 +232,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
           className={`${styles.TaskItemWrapper} TaskItemWrapper`}
           x={Math.max(containerX + (additionalLeftSpace || 0), 0)}
           y={levelY}
-          width={containerWidth}
+          width={Math.max(containerWidth, 0)}
           height={fullRowHeight}
           key={key}
         >
@@ -361,7 +364,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
 
               arrowsRes.push(
                 <svg
-                  x={containerX + (additionalLeftSpace || 0)}
+                  x={Math.max(containerX + (additionalLeftSpace || 0), 0)}
                   y={containerY}
                   width={containerWidth}
                   height={containerHeight}
@@ -440,7 +443,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = ({
 
               arrowsRes.push(
                 <svg
-                  x={containerX + (additionalLeftSpace || 0)}
+                  x={Math.max(containerX + (additionalLeftSpace || 0), 0)}
                   y={containerY}
                   width={containerWidth}
                   height={containerHeight}

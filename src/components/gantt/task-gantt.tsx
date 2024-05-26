@@ -1,4 +1,4 @@
-import type { CSSProperties, RefObject } from "react";
+import { CSSProperties, MouseEvent, RefObject, useEffect, useRef } from "react";
 import React, { memo, SyntheticEvent, useMemo } from "react";
 
 import { GanttToday, GanttTodayProps } from "../gantt-today";
@@ -17,33 +17,48 @@ export interface TaskGanttProps extends GanttTaskBarActions {
   ganttSVGRef: RefObject<SVGSVGElement>;
   ganttTodayProps: GanttTodayProps;
   horizontalContainerRef: RefObject<HTMLDivElement>;
+  verticalScrollbarRef: RefObject<HTMLDivElement>;
   onVerticalScrollbarScrollX: (event: SyntheticEvent<HTMLDivElement>) => void;
   verticalGanttContainerRef: RefObject<HTMLDivElement>;
 }
 
-const TaskGanttInner: React.FC<TaskGanttProps> = ({
-  barProps,
-  barProps: { additionalLeftSpace },
-  calendarProps,
-  fullRowHeight,
-  fullSvgWidth,
-  ganttFullHeight,
-  ganttHeight,
-  ganttSVGRef,
-  ganttTodayProps,
-  ganttTodayProps: {
-    distances: { columnWidth, rowHeight, minimumRowDisplayed },
-  },
-  horizontalContainerRef,
-  onVerticalScrollbarScrollX,
-  verticalGanttContainerRef,
-}) => {
+interface MouseDragState {
+  scrollLeft: number;
+  scrollTop: number;
+  clientX: number;
+  clientY: number;
+}
+
+const TaskGanttInner: React.FC<TaskGanttProps> = (props) => {
+  const {
+    barProps,
+    barProps: { additionalLeftSpace },
+    calendarProps,
+    fullRowHeight,
+    fullSvgWidth,
+    ganttFullHeight,
+    ganttHeight,
+    ganttSVGRef,
+    ganttTodayProps,
+    ganttTodayProps: {
+      distances: { columnWidth, rowHeight, minimumRowDisplayed },
+    },
+    horizontalContainerRef,
+    onVerticalScrollbarScrollX,
+    verticalGanttContainerRef,
+    verticalScrollbarRef,
+  }= props;
+  const contentRef = React.useRef<SVGRectElement>(null);
+  const moveStateVertRef = useRef<MouseDragState | null>(null);
+  const moveStateHorRef = useRef<MouseDragState | null>(null);
+  const moveStateScrollRef = useRef<MouseDragState | null>(null);
+
   const containerStyle = useMemo<CSSProperties>(
     () => ({
       height: Math.max(ganttHeight, minimumRowDisplayed * rowHeight),
       width: fullSvgWidth,
     }),
-    [ganttHeight, minimumRowDisplayed, rowHeight, fullSvgWidth]
+    [ganttHeight, minimumRowDisplayed, rowHeight, fullSvgWidth],
   );
 
   const gridStyle = useMemo<CSSProperties>(
@@ -65,8 +80,92 @@ const TaskGanttInner: React.FC<TaskGanttProps> = ({
       ganttFullHeight,
       minimumRowDisplayed,
       rowHeight,
-    ]
+    ],
   );
+
+  // https://stackoverflow.com/questions/40926181/react-scrolling-a-div-by-dragging-the-mouse
+  useEffect(() => {
+    if (!contentRef.current) {
+      return () => {
+      };
+    }
+
+    const contentContainer = contentRef.current;
+
+    const onScrollStart = (event: MouseEvent) => {
+      event.preventDefault();
+      moveStateVertRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollLeft: verticalGanttContainerRef.current.scrollLeft,
+        scrollTop: verticalGanttContainerRef.current.scrollTop,
+      };
+      moveStateHorRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollLeft: horizontalContainerRef.current.scrollLeft,
+        scrollTop: horizontalContainerRef.current.scrollTop,
+      };
+      moveStateScrollRef.current = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        scrollLeft: verticalScrollbarRef.current.scrollLeft,
+        scrollTop: verticalScrollbarRef.current.scrollTop,
+      };
+      contentContainer.classList.add(styles.calendarDragging);
+    };
+
+    const onScrollMove = (event: MouseEvent) => {
+      if (!moveStateVertRef.current) {
+        return;
+      }
+
+      event.preventDefault();
+      const { clientX, scrollLeft, scrollTop, clientY } = moveStateVertRef.current;
+      const scrollVertContainer = verticalGanttContainerRef.current;
+      scrollVertContainer.scrollLeft = scrollLeft + clientX - event.clientX;
+      scrollVertContainer.scrollTop = scrollTop + clientY - event.clientY;
+
+      const {
+        clientX: clientXH,
+        scrollLeft: scrollLeftH,
+        scrollTop: scrollTopH,
+        clientY: clientYH,
+      } = moveStateHorRef.current;
+      const horContainer = horizontalContainerRef.current;
+      horContainer.scrollLeft = scrollLeftH + clientXH - event.clientX;
+      horContainer.scrollTop = scrollTopH + clientYH - event.clientY;
+
+      const {
+        clientX: clientXS,
+        scrollLeft: scrollLeftS,
+        scrollTop: scrollTopS,
+        clientY: clientYS,
+      } = moveStateScrollRef.current;
+      const scrollContainer = verticalScrollbarRef.current;
+      scrollContainer.scrollLeft = scrollLeftS + clientXS - event.clientX;
+      scrollContainer.scrollTop = scrollTopS + clientYS - event.clientY;
+    };
+
+    const onScrollEnd = (event: MouseEvent) => {
+      event.preventDefault();
+      moveStateVertRef.current = null;
+      moveStateHorRef.current = null;
+      contentContainer.classList.remove(styles.calendarDragging);
+    };
+
+    contentContainer.addEventListener("mousemove", onScrollMove as any);
+    contentContainer.addEventListener("mousedown", onScrollStart as any);
+    contentContainer.addEventListener("mouseup", onScrollEnd as any);
+    contentContainer.addEventListener("mouseout", onScrollEnd as any);
+
+    return () => {
+      contentContainer.removeEventListener("mousemove", onScrollMove as any);
+      contentContainer.removeEventListener("mousedown", onScrollStart as any);
+      contentContainer.removeEventListener("mouseup", onScrollEnd as any);
+      contentContainer.removeEventListener("mouseout", onScrollEnd as any);
+    };
+  }, [verticalScrollbarRef, horizontalContainerRef, verticalGanttContainerRef]);
 
   return (
     <div
@@ -98,6 +197,7 @@ const TaskGanttInner: React.FC<TaskGanttProps> = ({
             ref={ganttSVGRef}
           >
             <GanttToday {...ganttTodayProps} />
+            <rect ref={contentRef} width={"100%"} height={"100%"} fill={"transparent"} />
             <TaskGanttContent {...barProps} />
           </svg>
         </div>

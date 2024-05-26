@@ -136,6 +136,7 @@ export function ContextMenu(props: ContextMenuProps): ReactElement {
           position: "absolute",
           left: x,
           top: y,
+          zIndex: 1,
         }}
         ref={setReference}
       />

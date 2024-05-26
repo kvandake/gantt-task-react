@@ -32,12 +32,12 @@ export const BarDateHandle: React.FC<BarDateHandleProps> = ({
       ry={barCornerRadius}
       rx={barCornerRadius}
       onMouseDown={e => {
+        e.stopPropagation();
         startMove(e.clientX);
       }}
       onTouchStart={e => {
-        e.preventDefault();
+        e.stopPropagation();
         const firstTouch = e.touches[0];
-
         if (firstTouch) {
           startMove(firstTouch.clientX);
         }

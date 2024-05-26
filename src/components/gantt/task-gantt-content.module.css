@@ -1,3 +1,5 @@
 .TaskItemWrapper {
   outline: none;
+  z-index: 2;
+  overflow: visible !important;
 }

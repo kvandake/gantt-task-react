@@ -10,7 +10,7 @@ import {
   RenderCustomLabel,
   Task,
   TaskBarMoveAction,
-  RenderTask, ViewMode
+  RenderTask, ViewMode,
 } from "../../types";
 import { Bar } from "./bar";
 import { Milestone } from "./milestone";
@@ -53,7 +53,7 @@ export interface TaskItemProps
     action: TaskBarMoveAction,
     selectedTask: Task,
     clientX: number,
-    taskRootNode: Element
+    taskRootNode: Element,
   ) => void;
   onTooltipTask: (task: Task | null, element: Element | null) => void;
 
@@ -98,7 +98,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
         onClick(task, event);
       }
     },
-    [onClick, task]
+    [onClick, task],
   );
 
   const handleDoubleClick = useCallback(() => {
@@ -123,7 +123,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
         onEventStart(action, task, clientX, taskRootNode);
       }
     },
-    [isDateChangeable, onEventStart, task, allowMoveTaskBar]
+    [isDateChangeable, onEventStart, task, allowMoveTaskBar],
   );
 
   const onLeftRelationTriggerMouseDown = useCallback(() => {
@@ -247,19 +247,22 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
 
   const onMouseDown = useCallback<MouseEventHandler>(
     event => {
+      event.stopPropagation();
       onSelectTaskOnMouseDown(task.id, event);
     },
-    [onSelectTaskOnMouseDown, task]
+    [onSelectTaskOnMouseDown, task],
   );
 
   const onMouseEnter = useCallback<MouseEventHandler<SVGGElement>>(
     event => {
+      event.stopPropagation();
       onTooltipTask(task, event.currentTarget);
     },
-    [onTooltipTask, task]
+    [onTooltipTask, task],
   );
 
-  const onMouseLeave = useCallback(() => {
+  const onMouseLeave = useCallback<MouseEventHandler>((event) => {
+    event.stopPropagation();
     onTooltipTask(null, null);
   }, [onTooltipTask]);
 
@@ -294,7 +297,7 @@ const TaskItemInner: React.FC<TaskItemProps> = props => {
           taskYOffset,
           movingAction,
           viewMode,
-          rtl
+          rtl,
         )
       ) : (
         <TaskResponsiveLabel

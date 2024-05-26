@@ -58,6 +58,7 @@ export const Milestone: React.FC<
         transform={transform}
         className={styles.milestoneBackground}
         onMouseDown={e => {
+          e.stopPropagation();
           onTaskEventStart("move", e.clientX);
         }}
         onTouchStart={e => {

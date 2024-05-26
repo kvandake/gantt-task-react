@@ -41,6 +41,7 @@ export const useTaskTooltip = (changeInProgress: ChangeInProgress | null) => {
     open: Boolean(tooltipTask),
     middleware: [offset(10), flip(), shift()],
     whileElementsMounted: autoUpdate,
+    strategy: 'absolute'
   });
 
   const focus = useFocus(context);

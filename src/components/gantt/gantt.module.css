@@ -49,3 +49,7 @@
   /*noinspection CssUnresolvedCustomProperty*/
   border-bottom: 1px solid var(--gantt-divider-color);
 }
+
+.calendarDragging {
+  cursor: grabbing;
+}

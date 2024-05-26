@@ -1646,6 +1646,7 @@ export const Gantt: React.FC<GanttProps> = props => {
               ganttSVGRef={ganttSVGRef}
               ganttTodayProps={gridProps}
               horizontalContainerRef={horizontalContainerRef}
+              verticalScrollbarRef={verticalScrollbarRef}
               onVerticalScrollbarScrollX={onVerticalScrollbarScrollX}
               verticalGanttContainerRef={verticalGanttContainerRef}
             />

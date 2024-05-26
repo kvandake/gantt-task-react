@@ -7,12 +7,12 @@ import { handleTaskBySVGMouseEvent } from "../../helpers/bar-helper";
 import { getTaskCoordinates } from "../../helpers/get-task-coordinates";
 import { roundTaskDates } from "../../helpers/round-task-dates";
 import {
-  TaskBarMoveAction,
   ChangeInProgress,
   ChildByLevelMap,
   DependentMap,
   MapTaskToCoordinates,
   Task,
+  TaskBarMoveAction,
   TaskCoordinates,
   TaskMapByLevel,
   TaskToGlobalIndexMap,
@@ -25,7 +25,7 @@ const getNextCoordinates = (
   task: Task,
   prevValue: ChangeInProgress,
   nextX: number,
-  rtl: boolean
+  rtl: boolean,
 ): [TaskCoordinates, number] => {
   const { action, additionalLeftSpace, initialCoordinates, startX } = prevValue;
 
@@ -35,7 +35,7 @@ const getNextCoordinates = (
       const x2Diff = nextX2 - initialCoordinates.x2;
       const progressWidth = Math.max(
         (nextX2 - initialCoordinates.x1) * task.progress * 0.01,
-        0
+        0,
       );
 
       if (rtl) {
@@ -69,7 +69,7 @@ const getNextCoordinates = (
       const x1Diff = nextX1 - initialCoordinates.x1;
       const progressWidth = Math.max(
         (initialCoordinates.x2 - nextX1) * task.progress * 0.01,
-        0
+        0,
       );
 
       if (rtl) {
@@ -102,7 +102,7 @@ const getNextCoordinates = (
     case "progress": {
       const nextProgressEndX = Math.min(
         Math.max(nextX, initialCoordinates.x1),
-        initialCoordinates.x2
+        initialCoordinates.x2,
       );
 
       if (rtl) {
@@ -152,7 +152,7 @@ const getNextCoordinates = (
 const getNextTsDiff = (
   changedTask: Task,
   prevValue: ChangeInProgress,
-  rtl: boolean
+  rtl: boolean,
 ): number => {
   const { action, task } = prevValue;
 
@@ -191,7 +191,7 @@ type UseTaskDragParams = {
   onDateChange: (
     action: TaskBarMoveAction,
     changedTask: Task,
-    originalTask: Task
+    originalTask: Task,
   ) => void;
   onProgressChange: (task: Task) => void;
   roundEndDate: (date: Date) => Date;
@@ -209,40 +209,34 @@ type UseTaskDragParams = {
 };
 
 export const useTaskDrag = ({
-  childTasksMap,
-  dependentMap,
-  ganttSVGRef,
-  mapTaskToCoordinates,
-  mapTaskToGlobalIndex,
-  onDateChange,
-  onProgressChange,
-  roundEndDate,
-  roundStartDate,
-  rtl,
-  scrollToLeftStep,
-  scrollToRightStep,
-  scrollX,
-  setScrollXProgrammatically,
-  svgClientWidth,
-  svgWidth,
-  tasksMap,
-  timeStep,
-  xStep,
-}: UseTaskDragParams): [
-  ChangeInProgress | null,
+                              ganttSVGRef,
+                              mapTaskToCoordinates,
+                              onDateChange,
+                              onProgressChange,
+                              roundEndDate,
+                              roundStartDate,
+                              rtl,
+                              scrollToLeftStep,
+                              scrollToRightStep,
+                              scrollX,
+                              setScrollXProgrammatically,
+                              svgClientWidth,
+                              svgWidth,
+                              timeStep,
+                              xStep,
+                            }: UseTaskDragParams): [
+    ChangeInProgress | null,
   (
     action: TaskBarMoveAction,
     task: Task,
     clientX: number,
-    taskRootNode: Element
+    taskRootNode: Element,
   ) => void,
 ] => {
   const [changeInProgress, setChangeInProgress] =
     useState<ChangeInProgress | null>(null);
 
-  const changeInProgressTask = changeInProgress?.task;
-
-  const isChangeInProgress = Boolean(changeInProgress);
+  // const isChangeInProgress = Boolean(changeInProgress);
 
   /**
    * Method is Start point of task change
@@ -252,7 +246,7 @@ export const useTaskDrag = ({
       action: TaskBarMoveAction,
       task: Task,
       clientX: number,
-      taskRootNode: Element
+      taskRootNode: Element,
     ) => {
       if (changeInProgress) {
         return;
@@ -292,7 +286,7 @@ export const useTaskDrag = ({
         tsDiff: 0,
       });
     },
-    [changeInProgress, ganttSVGRef, mapTaskToCoordinates, svgWidth]
+    [changeInProgress, ganttSVGRef, mapTaskToCoordinates, svgWidth],
   );
 
   const recountOnMove = useCallback(
@@ -314,7 +308,7 @@ export const useTaskDrag = ({
           task,
           prevValue,
           nextX - additionalLeftSpace,
-          rtl
+          rtl,
         );
 
         const { changedTask: newChangedTask } = handleTaskBySVGMouseEvent(
@@ -324,7 +318,7 @@ export const useTaskDrag = ({
           nextCoordinates,
           xStep,
           timeStep,
-          rtl
+          rtl,
         );
 
         return {
@@ -337,11 +331,11 @@ export const useTaskDrag = ({
         };
       });
     },
-    [changeInProgress, rtl, timeStep, xStep]
+    [changeInProgress, rtl, timeStep, xStep],
   );
 
   useEffect(() => {
-    if (!isChangeInProgress) {
+    if (!changeInProgress) {
       return undefined;
     }
 
@@ -398,7 +392,7 @@ export const useTaskDrag = ({
                     nextCoordinates,
                     xStep,
                     timeStep,
-                    rtl
+                    rtl,
                   );
 
                 return {
@@ -472,7 +466,7 @@ export const useTaskDrag = ({
                     nextCoordinates,
                     xStep,
                     timeStep,
-                    rtl
+                    rtl,
                   );
 
                 return {
@@ -507,7 +501,6 @@ export const useTaskDrag = ({
     };
   }, [
     changeInProgress,
-    isChangeInProgress,
     recountOnMove,
     rtl,
     scrollToLeftStep,
@@ -552,6 +545,7 @@ export const useTaskDrag = ({
 
     const handleMouseMove = (event: MouseEvent) => {
       event.preventDefault();
+
       handleMove(event.clientX);
     };
 
@@ -566,13 +560,12 @@ export const useTaskDrag = ({
     };
 
     const handleUp = async (event: Event) => {
+      event.preventDefault();
       const changeInProgressLatest = changeInProgress;
 
       if (!changeInProgressLatest || !point) {
         return;
       }
-
-      event.preventDefault();
 
       const { action, task } = changeInProgressLatest;
 
@@ -584,7 +577,7 @@ export const useTaskDrag = ({
           changeInProgressLatest.coordinates,
           xStep,
           timeStep,
-          rtl
+          rtl,
         );
 
       setChangeInProgress(null);
@@ -601,41 +594,25 @@ export const useTaskDrag = ({
       const roundedChangedTask = roundTaskDates(
         newChangedTask,
         roundStartDate,
-        roundEndDate
+        roundEndDate,
       );
 
       onDateChange(action, roundedChangedTask, task);
     };
 
     svgNode.addEventListener("mousemove", handleMouseMove);
-    svgNode.addEventListener("touchmove", handleTouchMove);
+    svgNode.addEventListener("touchmove", handleTouchMove, { passive: true });
     svgNode.addEventListener("mouseup", handleUp);
-    svgNode.addEventListener("touchend", handleUp);
+    svgNode.addEventListener("touchend", handleUp, { passive: true });
 
     return () => {
+      // TODO тут не up при hover tooltip
       svgNode.removeEventListener("mousemove", handleMouseMove);
       svgNode.removeEventListener("touchmove", handleTouchMove);
       svgNode.removeEventListener("mouseup", handleUp);
       svgNode.removeEventListener("touchend", handleUp);
     };
-  }, [
-    changeInProgress,
-    changeInProgressTask,
-    childTasksMap,
-    dependentMap,
-    ganttSVGRef,
-    mapTaskToGlobalIndex,
-    onDateChange,
-    onProgressChange,
-    recountOnMove,
-    roundEndDate,
-    roundStartDate,
-    rtl,
-    setChangeInProgress,
-    tasksMap,
-    timeStep,
-    xStep,
-  ]);
+  }, [changeInProgress, ganttSVGRef, onDateChange, onProgressChange, recountOnMove, roundEndDate, roundStartDate, rtl, timeStep, xStep]);
 
   return [changeInProgress, handleTaskDragStart];
 };

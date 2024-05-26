@@ -19,6 +19,7 @@ export const BarProgressHandle: React.FC<BarProgressHandleProps> = ({
       className={className}
       points={progressPoint}
       onMouseDown={e => {
+        e.stopPropagation();
         startMoveProgress(e.clientX);
       }}
       onTouchStart={e => {

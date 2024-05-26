@@ -104,11 +104,12 @@ export const BarDisplay: React.FC<BarDisplayProps> = ({
       style={customStyle}
       data-testid={`task-bar-${taskId}`}
       onMouseDown={e => {
+        e.stopPropagation();
         startMoveFullTask(e.clientX);
       }}
       onTouchStart={e => {
+        e.stopPropagation();
         const firstTouch = e.touches[0];
-
         if (firstTouch) {
           startMoveFullTask(firstTouch.clientX);
         }

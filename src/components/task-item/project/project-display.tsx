@@ -91,6 +91,7 @@ export const ProjectDisplay: React.FC<ProjectDisplayProps> = ({
       style={customStyle}
       data-testid={`task-project-${taskName}`}
       onMouseDown={e => {
+        e.stopPropagation();
         startMoveFullTask(e.clientX);
       }}
       onTouchStart={e => {

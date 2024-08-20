@@ -101,7 +101,6 @@ export const ProjectDisplay: React.FC<ProjectDisplayProps> = ({
           startMoveFullTask(firstTouch.clientX);
         }
       }}
-      tabIndex={0}
       className={styles.projectWrapper}
     >
       <rect

@@ -26,6 +26,8 @@ import { checkHasChildren } from "../../helpers/check-has-children";
 import type { OptimizedListParams } from "../../helpers/use-optimized-list";
 import { BarComparison } from "../task-item/bar-comparison";
 
+const DELTA_RELATION_WIDTH = 100;
+
 export interface TaskGanttContentProps extends GanttTaskBarActions {
   authorizedRelations: RelationKind[];
   additionalLeftSpace: number;
@@ -358,9 +360,8 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
 
               const { x1: fromX1, x2: fromX2 } = getTaskCoordinates(source);
 
-              const containerX = Math.min(fromX1, taskX1) - 300;
-              const containerWidth =
-                Math.max(fromX2, taskX2) - containerX + 300;
+              const containerX = Math.min(fromX1, taskX1) - DELTA_RELATION_WIDTH;
+              const containerWidth = Math.max(fromX2, taskX2) - containerX + DELTA_RELATION_WIDTH;
 
               arrowsRes.push(
                 <svg
@@ -438,8 +439,8 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
 
               const { x1: toX1, x2: toX2 } = getTaskCoordinates(dependent);
 
-              const containerX = Math.min(toX1, taskX1) - 300;
-              const containerWidth = Math.max(toX2, taskX2) - containerX + 300;
+              const containerX =  Math.min(toX1, taskX1) - DELTA_RELATION_WIDTH;
+              const containerWidth = Math.max(toX2, taskX2) - containerX + DELTA_RELATION_WIDTH;
 
               arrowsRes.push(
                 <svg
@@ -518,6 +519,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
       {renderedSelectedTasks}
 
       <g>{renderedHolidays}</g>
+
 
       <g
         className="arrows"

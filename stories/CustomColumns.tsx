@@ -164,8 +164,6 @@ export const CustomColumns: React.FC<AppProps> = props => {
     });
   };
 
-  console.log('tasks', tasks)
-
   return (
     <>
       <Gantt

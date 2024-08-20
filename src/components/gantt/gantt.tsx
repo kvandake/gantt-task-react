@@ -253,9 +253,9 @@ export const Gantt: React.FC<GanttProps> = props => {
   );
 
   const renderedRowIndexes = useOptimizedList(
-    horizontalContainerRef,
+    verticalScrollbarRef,
     "scrollTop",
-    distances.rowHeight
+    fullRowHeight
   );
 
   const taskHeight = useMemo(

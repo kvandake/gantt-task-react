@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import type { RefObject } from "react";
+import { useEffect, useState } from "react";
 
 export type OptimizedListParams = [
   /**
@@ -29,7 +29,7 @@ const DELTA = 5;
 const getStartAndEnd = (
   containerEl: Element | null,
   property: "scrollTop" | "scrollLeft",
-  cellSize: number
+  cellSize: number,
 ): OptimizedListParams | null => {
   if (!containerEl) {
     return null;
@@ -46,7 +46,8 @@ const getStartAndEnd = (
       : containerEl.clientHeight;
 
   const firstIndex = Math.floor(scrollValue / cellSize);
-  const lastIndex = Math.ceil((scrollValue + fullValue) / cellSize) - 1;
+  // TODO считать позже на основе связей
+  const lastIndex = Math.ceil((scrollValue + fullValue) / cellSize) + 10;
 
   const isStartOfScroll = scrollValue < DELTA;
   const isEndOfScroll = scrollValue + fullValue > maxScrollValue - DELTA;
@@ -57,10 +58,10 @@ const getStartAndEnd = (
 export const useOptimizedList = (
   containerRef: RefObject<Element>,
   property: "scrollTop" | "scrollLeft",
-  cellSize: number
+  cellSize: number,
 ) => {
   const [indexes, setIndexes] = useState(() =>
-    getStartAndEnd(containerRef.current, property, cellSize)
+    getStartAndEnd(containerRef.current, property, cellSize),
   );
 
   useEffect(() => {
@@ -72,14 +73,14 @@ export const useOptimizedList = (
       const nextIndexes = getStartAndEnd(
         containerRef.current,
         property,
-        cellSize
+        cellSize,
       );
 
       const isChanged = prevIndexes
         ? nextIndexes
           ? nextIndexes.some(
-              (value, index) => !prevIndexes || prevIndexes[index] !== value
-            )
+            (value, index) => !prevIndexes || prevIndexes[index] !== value,
+          )
           : true
         : Boolean(nextIndexes);
 
@@ -98,7 +99,7 @@ export const useOptimizedList = (
         cancelAnimationFrame(rafId);
       }
     };
-  }, [containerRef, cellSize, indexes, property]);
+  }, [cellSize, containerRef, indexes, property]);
 
   return indexes;
 };

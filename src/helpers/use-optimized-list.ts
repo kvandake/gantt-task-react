@@ -30,6 +30,7 @@ const getStartAndEnd = (
   containerEl: Element | null,
   property: "scrollTop" | "scrollLeft",
   cellSize: number,
+  maxIndex?: number,
 ): OptimizedListParams | null => {
   if (!containerEl) {
     return null;
@@ -46,8 +47,7 @@ const getStartAndEnd = (
       : containerEl.clientHeight;
 
   const firstIndex = Math.floor(scrollValue / cellSize);
-  // TODO считать позже на основе связей
-  const lastIndex = Math.ceil((scrollValue + fullValue) / cellSize) + 10;
+  const lastIndex = maxIndex || Math.ceil((scrollValue + fullValue) / cellSize) + 10;
 
   const isStartOfScroll = scrollValue < DELTA;
   const isEndOfScroll = scrollValue + fullValue > maxScrollValue - DELTA;
@@ -59,9 +59,10 @@ export const useOptimizedList = (
   containerRef: RefObject<Element>,
   property: "scrollTop" | "scrollLeft",
   cellSize: number,
+  maxIndex?: number,
 ) => {
   const [indexes, setIndexes] = useState(() =>
-    getStartAndEnd(containerRef.current, property, cellSize),
+    getStartAndEnd(containerRef.current, property, cellSize, maxIndex),
   );
 
   useEffect(() => {
@@ -74,6 +75,7 @@ export const useOptimizedList = (
         containerRef.current,
         property,
         cellSize,
+        maxIndex,
       );
 
       const isChanged = prevIndexes
@@ -99,7 +101,7 @@ export const useOptimizedList = (
         cancelAnimationFrame(rafId);
       }
     };
-  }, [cellSize, containerRef, indexes, property]);
+  }, [maxIndex, cellSize, containerRef, indexes, property]);
 
   return indexes;
 };

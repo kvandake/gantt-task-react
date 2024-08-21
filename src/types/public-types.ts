@@ -15,6 +15,10 @@ import {
   TaskId,
 } from "./common-types";
 
+export interface GanttRefProps {
+  scrollToFirstSelectedTask: () => void;
+}
+
 export type RenderTopHeader = (
   date: Date,
   viewMode: ViewMode,

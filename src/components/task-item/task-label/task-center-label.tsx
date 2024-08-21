@@ -7,7 +7,7 @@ interface Props extends TaskLabelProps {
 }
 
 const TaskCenterLabelInner: React.FC<Props> = props => {
-  const { hideWhenSmall, label, taskHeight, taskYOffset, width, x1, viewMode } =
+  const { hideWhenSmall, label, taskHeight, taskYOffset, width, x1, viewMode, arrowIndent } =
     props;
 
   const textRef = useRef<SVGTextElement>(null);
@@ -21,7 +21,7 @@ const TaskCenterLabelInner: React.FC<Props> = props => {
     if (textRef.current) {
       setIsTextInside(textRef.current.getBBox().width < width);
     }
-  }, [textRef, width, viewMode]);
+  }, [arrowIndent, width, viewMode]);
 
   return (
     <text

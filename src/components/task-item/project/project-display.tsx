@@ -22,21 +22,24 @@ type ProjectDisplayProps = {
 };
 
 export const ProjectDisplay: React.FC<ProjectDisplayProps> = ({
-  barCornerRadius,
-  taskName,
-  taskHalfHeight,
-  taskHeight,
-  isSelected,
-  isCritical,
-  progressWidth,
-  progressX,
-  taskYOffset,
-  width,
-  x1,
-  x2,
-  startMoveFullTask,
-  customStyle,
-}) => {
+                                                                barCornerRadius,
+                                                                taskName,
+                                                                taskHalfHeight,
+                                                                taskHeight,
+                                                                isSelected,
+                                                                isCritical,
+                                                                progressWidth,
+                                                                progressX,
+                                                                taskYOffset,
+                                                                width,
+                                                                x1,
+                                                                x2,
+                                                                startMoveFullTask,
+                                                                customStyle,
+                                                              }) => {
+
+  const isSmall = width <= 16;
+
   const barColor = useMemo(() => {
     if (isCritical) {
       if (isSelected) {
@@ -132,16 +135,20 @@ export const ProjectDisplay: React.FC<ProjectDisplayProps> = ({
         ry={barCornerRadius}
         className={styles.projectTop}
       />
-      <polygon
-        className={styles.projectTop}
-        points={projectLeftTriangle}
-        fill={barColor}
-      />
-      <polygon
-        className={styles.projectTop}
-        points={projectRightTriangle}
-        fill={barColor}
-      />
+      {!isSmall && (
+        <>
+          <polygon
+            className={styles.projectTop}
+            points={projectLeftTriangle}
+            fill={barColor}
+          />
+          <polygon
+            className={styles.projectTop}
+            points={projectRightTriangle}
+            fill={barColor}
+          />
+        </>
+      )}
     </g>
   );
 };

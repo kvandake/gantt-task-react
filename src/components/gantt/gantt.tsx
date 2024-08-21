@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 
 import {
   ChangeAction,
@@ -13,14 +7,15 @@ import {
   DateSetup,
   Dependency,
   GanttProps,
+  GanttRefProps,
   GanttTaskBarProps,
   GanttTaskListProps,
   OnChangeTasksAction,
   OnDateChangeSuggestionType,
   OnRelationChange,
+  RenderTask,
   Task,
   TaskBarMoveAction,
-  RenderTask,
   ViewMode,
 } from "../../types";
 import { GanttTodayProps } from "../gantt-today";
@@ -87,7 +82,7 @@ import { GANTT_EN_LOCALE } from "../../locales";
 import { mergeDeepObj } from "../../helpers/obj-helper";
 import { GanttLoader } from "../gantt-loader";
 
-export const Gantt: React.FC<GanttProps> = props => {
+export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
   const {
     theme: clientTheme,
     taskBar: clientTaskBar,
@@ -141,7 +136,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         TooltipContent: StandardTooltipContent,
         preStepsCount: 1,
       } as GanttTaskBarProps,
-      clientTaskBar
+      clientTaskBar,
     ) as GanttTaskBarProps;
   }, [clientTaskBar]);
 
@@ -155,7 +150,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         canResizeColumns: true,
         enableTableListContextMenu: 1,
       } as GanttTaskListProps,
-      clientTaskList
+      clientTaskList,
     ) as GanttTaskListProps;
   }, [clientTaskList]);
 
@@ -181,20 +176,23 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const roundEndDate = useCallback(
     (date: Date) => clientRoundEndDate(date, viewMode),
-    [clientRoundEndDate, viewMode]
+    [clientRoundEndDate, viewMode],
   );
 
   const roundStartDate = useCallback(
-    (date: Date) => clientRoundStartDate(date, viewMode),
-    [clientRoundStartDate, viewMode]
+    (date: Date) => {
+      console.trace('RoundStartDate called with date: ', date)
+      return clientRoundStartDate(date, viewMode);
+    },
+    [clientRoundStartDate, viewMode],
   );
 
   const [currentViewDate, setCurrentViewDate] = useState<Date | undefined>(
-    undefined
+    undefined,
   );
 
   const [sortedTasks, setSortedTasks] = useState(() =>
-    [...clientTasks].sort(sortTasks)
+    [...clientTasks].sort(sortTasks),
   );
 
   useEffect(() => {
@@ -203,17 +201,17 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const [childTasksMap, rootTasksMap] = useMemo(
     () => getChildsAndRoots(sortedTasks, null),
-    [sortedTasks]
+    [sortedTasks],
   );
 
   const minAndMaxChildsMap = useMemo(
     () => getMinAndMaxChildsMap(rootTasksMap, childTasksMap),
-    [rootTasksMap, childTasksMap]
+    [rootTasksMap, childTasksMap],
   );
 
   const [visibleTasks, visibleTasksMirror] = useMemo(
     () => collectVisibleTasks(childTasksMap, rootTasksMap),
-    [childTasksMap, rootTasksMap]
+    [childTasksMap, rootTasksMap],
   );
 
   const tasksMap = useMemo(() => getTasksMap(sortedTasks), [sortedTasks]);
@@ -228,49 +226,50 @@ export const Gantt: React.FC<GanttProps> = props => {
 
       return tasksAtLevelMap.has(newId);
     },
-    [tasksMap]
+    [tasksMap],
   );
 
   const makeCopies = useCallback(
     (tasksForCopy: readonly RenderTask[]) =>
       copyTasks(tasksForCopy, getCopiedTaskId, checkTaskIdExists),
-    [checkTaskIdExists, getCopiedTaskId]
+    [checkTaskIdExists, getCopiedTaskId],
   );
 
   const mapTaskToGlobalIndex = useMemo(
     () => getMapTaskToGlobalIndex(sortedTasks),
-    [sortedTasks]
+    [sortedTasks],
   );
 
   const mapTaskToNestedIndex = useMemo(
     () => getMapTaskToNestedIndex(childTasksMap, rootTasksMap),
-    [childTasksMap, rootTasksMap]
+    [childTasksMap, rootTasksMap],
   );
 
   const fullRowHeight = useMemo(
     () => distances.rowHeight * comparisonLevels,
-    [distances, comparisonLevels]
+    [distances, comparisonLevels],
   );
 
   const renderedRowIndexes = useOptimizedList(
     verticalScrollbarRef,
     "scrollTop",
-    fullRowHeight
+    fullRowHeight,
+    visibleTasks.length,
   );
 
   const taskHeight = useMemo(
     () => (distances.rowHeight * distances.barFill) / 100,
-    [distances]
+    [distances],
   );
 
   const taskYOffset = useMemo(
     () => (distances.rowHeight - taskHeight) / 2,
-    [distances, taskHeight]
+    [distances, taskHeight],
   );
 
   const taskHalfHeight = useMemo(
     () => Math.round(taskHeight / 2),
-    [taskHeight]
+    [taskHeight],
   );
 
   const maxLevelLength = useMemo(() => {
@@ -297,7 +296,7 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const ganttFullHeight = useMemo(
     () => maxLevelLength * fullRowHeight + (taskList?.tableBottom?.height || 0),
-    [maxLevelLength, fullRowHeight, taskList?.tableBottom?.height]
+    [maxLevelLength, fullRowHeight, taskList?.tableBottom?.height],
   );
 
   const ganttHeight = useMemo(
@@ -305,13 +304,13 @@ export const Gantt: React.FC<GanttProps> = props => {
       distances.ganttHeight
         ? Math.min(distances.ganttHeight, ganttFullHeight)
         : ganttFullHeight,
-    [distances, ganttFullHeight]
+    [distances, ganttFullHeight],
   );
 
   const [taskToRowIndexMap, rowIndexToTaskMap, mapGlobalRowIndexToTask] =
     useMemo(
       () => getMapTaskToRowIndex(visibleTasks, comparisonLevels),
-      [visibleTasks, comparisonLevels]
+      [visibleTasks, comparisonLevels],
     );
 
   const {
@@ -331,12 +330,12 @@ export const Gantt: React.FC<GanttProps> = props => {
   const [startDate, minTaskDate, datesLength] = useMemo(
     () =>
       ganttDateRange(visibleTasks, distances, viewMode, taskBar.preStepsCount),
-    [visibleTasks, distances, viewMode, taskBar.preStepsCount]
+    [visibleTasks, distances, viewMode, taskBar.preStepsCount],
   );
 
   const getDate = useCallback(
     (index: number) => getDateByOffset(startDate, index, viewMode),
-    [startDate, viewMode]
+    [startDate, viewMode],
   );
 
   const dateSetup = useMemo<DateSetup>(
@@ -347,7 +346,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       preStepsCount: taskBar.preStepsCount,
       viewMode,
     }),
-    [dateFormats, locale, isUnknownDates, taskBar.preStepsCount, viewMode]
+    [dateFormats, locale, isUnknownDates, taskBar.preStepsCount, viewMode],
   );
 
   const { checkIsHoliday, adjustTaskToWorkingDates } = useHolidays({
@@ -360,17 +359,17 @@ export const Gantt: React.FC<GanttProps> = props => {
   const renderedColumnIndexes = useOptimizedList(
     verticalGanttContainerRef,
     "scrollLeft",
-    distances.columnWidth
+    distances.columnWidth,
   );
 
   const svgClientWidth = useMemo(
     () => renderedColumnIndexes && renderedColumnIndexes[4],
-    [renderedColumnIndexes]
+    [renderedColumnIndexes],
   );
 
   const svgWidth = useMemo(
     () => Math.max(datesLength * distances.columnWidth, svgClientWidth),
-    [datesLength, distances, svgClientWidth]
+    [datesLength, distances, svgClientWidth],
   );
 
   const countTaskCoordinates = useCallback(
@@ -385,7 +384,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         taskHeight,
         taskYOffset,
         distances,
-        svgWidth
+        svgWidth,
       ),
     [
       taskToRowIndexMap,
@@ -397,7 +396,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskYOffset,
       distances,
       svgWidth,
-    ]
+    ],
   );
 
   const mapTaskToCoordinates = useMemo(
@@ -413,7 +412,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         taskHeight,
         taskYOffset,
         distances,
-        svgWidth
+        svgWidth,
       ),
     [
       distances,
@@ -427,7 +426,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskYOffset,
       viewMode,
       visibleTasksMirror,
-    ]
+    ],
   );
 
   const scrollToTask = useCallback(
@@ -436,7 +435,7 @@ export const Gantt: React.FC<GanttProps> = props => {
 
       setScrollXProgrammatically(x1 - 100);
     },
-    [mapTaskToCoordinates, setScrollXProgrammatically]
+    [mapTaskToCoordinates, setScrollXProgrammatically],
   );
 
   const { contextMenu, handleCloseContextMenu, handleOpenContextMenu } =
@@ -450,7 +449,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         tasksMap,
         mapTaskToCoordinates,
         fullRowHeight,
-        taskBar.isShowCriticalPath
+        taskBar.isShowCriticalPath,
       ),
     [
       sortedTasks,
@@ -459,7 +458,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       mapTaskToCoordinates,
       fullRowHeight,
       taskBar.isShowCriticalPath,
-    ]
+    ],
   );
 
   const criticalPaths = useMemo(() => {
@@ -469,7 +468,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         childTasksMap,
         tasksMap,
         dependencyMarginsMap,
-        dependencyMap
+        dependencyMap,
       );
     }
 
@@ -487,7 +486,7 @@ export const Gantt: React.FC<GanttProps> = props => {
     (
       prevTasks: RenderTask[],
       nextTasks: RenderTask[],
-      action: OnChangeTasksAction
+      action: OnChangeTasksAction,
     ) => {
       if (!onCommitTasks) {
         setSortedTasks(nextTasks);
@@ -508,7 +507,7 @@ export const Gantt: React.FC<GanttProps> = props => {
           });
       }
     },
-    [onCommitTasks]
+    [onCommitTasks],
   );
 
   useEffect(() => {
@@ -660,7 +659,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       isUpdateDisabledParentsOnChange,
       mapTaskToGlobalIndex,
       tasksMap,
-    ]
+    ],
   );
 
   const onExpanderClick = useCallback(
@@ -685,7 +684,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         },
       });
     },
-    [getMetadata, handleCommitInternal, sortedTasks]
+    [getMetadata, handleCommitInternal, sortedTasks],
   );
 
   /**
@@ -704,7 +703,7 @@ export const Gantt: React.FC<GanttProps> = props => {
 
       return nextTasks;
     },
-    [sortedTasks]
+    [sortedTasks],
   );
 
   const handleEditTask = useCallback(
@@ -755,7 +754,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       getMetadata,
       mapTaskToGlobalIndex,
       prepareSuggestions,
-    ]
+    ],
   );
 
   const handleAddChilds = useCallback(
@@ -789,7 +788,7 @@ export const Gantt: React.FC<GanttProps> = props => {
           }
 
           return !addedIdsAtLevelSet.has(parent);
-        }
+        },
       );
 
       const [, [{ index: taskIndex }], , suggestions] = getMetadata({
@@ -816,9 +815,9 @@ export const Gantt: React.FC<GanttProps> = props => {
         const nextTask =
           !parentId || !addedIdsAtLevelSet.has(parentId)
             ? {
-                ...descendant,
-                parent: parent.id,
-              }
+              ...descendant,
+              parent: parent.id,
+            }
             : descendant;
 
         withSuggestions.splice(taskIndex + 1 + index, 0, nextTask);
@@ -832,7 +831,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         },
       });
     },
-    [handleCommitInternal, getMetadata, prepareSuggestions]
+    [handleCommitInternal, getMetadata, prepareSuggestions],
   );
 
   const handleAddTask = useCallback(
@@ -846,7 +845,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         });
       }
     },
-    [handleAddChilds, onAddTaskAction]
+    [handleAddChilds, onAddTaskAction],
   );
 
   const xStep = useMemo(() => {
@@ -872,15 +871,15 @@ export const Gantt: React.FC<GanttProps> = props => {
       const changeAction: ChangeAction =
         action === "move"
           ? {
-              type: "change_start_and_end",
-              task: adjustedTask,
-              changedTask,
-              originalTask,
-            }
+            type: "change_start_and_end",
+            task: adjustedTask,
+            changedTask,
+            originalTask,
+          }
           : {
-              type: "change",
-              task: adjustedTask,
-            };
+            type: "change",
+            task: adjustedTask,
+          };
 
       const [, taskIndexes, , suggestions] = getMetadata(changeAction);
 
@@ -905,7 +904,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       getMetadata,
       prepareSuggestions,
       handleCommitInternal,
-    ]
+    ],
   );
 
   const onProgressChange = useCallback(
@@ -926,7 +925,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         },
       });
     },
-    [getMetadata, handleCommitInternal, sortedTasks]
+    [getMetadata, handleCommitInternal, sortedTasks],
   );
 
   const [changeInProgress, handleTaskDragStart] = useTaskDrag({
@@ -995,7 +994,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       const deletedIndexesSet = new Set(taskIndexes.map(({ index }) => index));
 
       withSuggestions = withSuggestions.filter(
-        (_, index) => !deletedIndexesSet.has(index)
+        (_, index) => !deletedIndexesSet.has(index),
       );
 
       handleCommitInternal(prevTasks, withSuggestions, {
@@ -1006,7 +1005,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         },
       });
     },
-    [getMetadata, handleCommitInternal, prepareSuggestions, onChangeTooltipTask]
+    [getMetadata, handleCommitInternal, prepareSuggestions, onChangeTooltipTask],
   );
 
   const handleMoveTaskAfter = useCallback(
@@ -1059,7 +1058,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       mapTaskToGlobalIndex,
       prepareSuggestions,
       onChangeTooltipTask,
-    ]
+    ],
   );
 
   const handleMoveTaskBefore = useCallback(
@@ -1114,7 +1113,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       mapTaskToGlobalIndex,
       prepareSuggestions,
       handleCommitInternal,
-    ]
+    ],
   );
 
   const handleMoveTasksInside = useCallback(
@@ -1165,12 +1164,12 @@ export const Gantt: React.FC<GanttProps> = props => {
       const prevTasks = [...withSuggestions];
 
       const parentDisplacement = childIndexes.filter(
-        childIndex => childIndex < parentIndex
+        childIndex => childIndex < parentIndex,
       ).length;
       const childIndexesSet = new Set(childIndexes);
 
       withSuggestions = withSuggestions.filter(
-        (_, index) => !childIndexesSet.has(index)
+        (_, index) => !childIndexesSet.has(index),
       );
 
       const startNewChildIndex = parentIndex - parentDisplacement + 1;
@@ -1199,7 +1198,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       mapTaskToGlobalIndex,
       prepareSuggestions,
       onChangeTooltipTask,
-    ]
+    ],
   );
 
   const onRelationChange = useCallback<OnRelationChange>(
@@ -1224,11 +1223,11 @@ export const Gantt: React.FC<GanttProps> = props => {
         ...taskTo,
         dependencies: taskTo.dependencies
           ? [
-              ...taskTo.dependencies.filter(
-                ({ sourceId }) => sourceId !== taskFrom.id
-              ),
-              newDependency,
-            ]
+            ...taskTo.dependencies.filter(
+              ({ sourceId }) => sourceId !== taskFrom.id,
+            ),
+            newDependency,
+          ]
           : [newDependency],
       };
 
@@ -1236,8 +1235,8 @@ export const Gantt: React.FC<GanttProps> = props => {
         ...taskFrom,
         dependencies: taskFrom.dependencies
           ? taskFrom.dependencies.filter(
-              ({ sourceId }) => sourceId !== taskTo.id
-            )
+            ({ sourceId }) => sourceId !== taskTo.id,
+          )
           : undefined,
       };
 
@@ -1250,7 +1249,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         },
       });
     },
-    [handleCommitInternal, sortedTasks]
+    [handleCommitInternal, sortedTasks],
   );
 
   const onArrowDoubleClick = useCallback(
@@ -1280,7 +1279,7 @@ export const Gantt: React.FC<GanttProps> = props => {
           taskFrom,
           taskFromIndex,
           taskTo,
-          taskToIndex
+          taskToIndex,
         );
       } else if (taskBar.isDeleteDependencyOnDoubleClick) {
         const prevTasks = [...sortedTasks];
@@ -1289,8 +1288,8 @@ export const Gantt: React.FC<GanttProps> = props => {
           ...taskTo,
           dependencies: taskTo.dependencies
             ? taskTo.dependencies.filter(
-                ({ sourceId }) => sourceId !== taskFrom.id
-              )
+              ({ sourceId }) => sourceId !== taskFrom.id,
+            )
             : undefined,
         };
 
@@ -1305,7 +1304,7 @@ export const Gantt: React.FC<GanttProps> = props => {
         });
       }
     },
-    [mapTaskToGlobalIndex, taskBar, handleCommitInternal, sortedTasks]
+    [mapTaskToGlobalIndex, taskBar, handleCommitInternal, sortedTasks],
   );
 
   const handleAction = useHandleAction({
@@ -1354,7 +1353,7 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const getTaskCoordinates = useCallback(
     (task: Task) => countTaskCoordinates(getTaskCurrentState(task)),
-    [countTaskCoordinates, getTaskCurrentState]
+    [countTaskCoordinates, getTaskCurrentState],
   );
 
   const contextMenuOptions = useMemo<ContextMenuOptionType[]>(() => {
@@ -1412,18 +1411,18 @@ export const Gantt: React.FC<GanttProps> = props => {
 
   const additionalStartColumns = useMemo(
     () => Math.ceil(additionalLeftSpace / distances.columnWidth),
-    [additionalLeftSpace, distances]
+    [additionalLeftSpace, distances],
   );
 
   const [defaultStartColumnIndex, defaultEndColumnIndex] =
-    renderedColumnIndexes || [0, -1];
+  renderedColumnIndexes || [0, -1];
 
   const startColumnIndex = defaultStartColumnIndex - additionalStartColumns;
   const endColumnIndex = defaultEndColumnIndex - additionalStartColumns + 1;
 
   const fullSvgWidth = useMemo(
     () => svgWidth + additionalLeftSpace + additionalRightSpace,
-    [additionalLeftSpace, additionalRightSpace, svgWidth]
+    [additionalLeftSpace, additionalRightSpace, svgWidth],
   );
 
   const gridProps: GanttTodayProps = useMemo(
@@ -1444,7 +1443,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       rtl,
       startDate,
       viewMode,
-    ]
+    ],
   );
 
   const calendarProps: Omit<CalendarProps, "scrollRef"> = useMemo(
@@ -1473,7 +1472,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskBar.renderTopHeader,
       rtl,
       startColumnIndex,
-    ]
+    ],
   );
 
   const renderTaskBarProps: TaskGanttContentProps = useMemo(
@@ -1552,7 +1551,7 @@ export const Gantt: React.FC<GanttProps> = props => {
       changeInProgress?.changedTask?.id,
       changeInProgress?.action,
       handleDeleteTasks,
-    ]
+    ],
   );
 
   const renderTaskListProps: TaskListProps = useMemo(
@@ -1615,8 +1614,20 @@ export const Gantt: React.FC<GanttProps> = props => {
       taskList,
       taskListContainerRef,
       visibleTasks,
-    ]
+    ],
   );
+
+  useImperativeHandle(ref, () => ({
+    scrollToFirstSelectedTask() {
+      const selectedTaskIds = selectedIdsMirror ? Object.keys(selectedIdsMirror) : [];
+      if (sortedTasks?.length && selectedTaskIds.length) {
+        const selectedTask = sortedTasks.find(task => task.id === selectedTaskIds[0]);
+        if (selectedTask && selectedTask.type !== "empty") {
+          scrollToTask(selectedTask);
+        }
+      }
+    },
+  }), [scrollToTask, selectedIdsMirror, sortedTasks]);
 
   return (
     <GanttThemeProvider theme={theme}>
@@ -1690,4 +1701,4 @@ export const Gantt: React.FC<GanttProps> = props => {
       )}
     </GanttThemeProvider>
   );
-};
+});

@@ -12,7 +12,7 @@
 }
 
 .barLabelHidden {
-  display: none;
+  visibility: hidden;
 }
 
 /*noinspection CssUnresolvedCustomProperty*/

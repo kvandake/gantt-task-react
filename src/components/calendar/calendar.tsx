@@ -314,11 +314,7 @@ export const Calendar: React.FC<CalendarProps> = ({
           <TopPartOfCalendar
             key={`${prevDate.getDate()}_${prevDate.getMonth()}_${prevDate.getFullYear()}`}
             value={topValue}
-            x1Line={
-              additionalLeftSpace +
-              columnWidth * widthMultiplier +
-              ticks * columnWidth
-            }
+            x1Line={additionalLeftSpace + columnWidth * i}
             y1Line={0}
             y2Line={topDefaultHeight}
             xText={

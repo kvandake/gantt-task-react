@@ -121,7 +121,8 @@ const TaskListInner: React.FC<TaskListProps> = ({
   const renderedIndexes = useOptimizedList(
     taskListContainerRef,
     "scrollTop",
-    fullRowHeight
+    fullRowHeight,
+    tasks.length,
   );
 
   const getTableRowProps = useCallback(
@@ -283,7 +284,7 @@ const TaskListInner: React.FC<TaskListProps> = ({
         </div>
 
         {tableBottom?.renderContent && tableBottom?.height && (
-          <div style={{ height: tableBottom.height, width: "100%" }}>
+          <div style={{ height: tableBottom.height, width: taskListWidth, flexShrink: 0 }}>
             {tableBottom.renderContent()}
           </div>
         )}

@@ -3,6 +3,7 @@
   display: table;
   border-bottom: 1px solid var(--gantt-table-divider-color, var(--gantt-divider-color));
   border-top: 1px solid var(--gantt-table-divider-color, var(--gantt-divider-color));
+  flex-shrink: 0;
 }
 
 .ganttTable_Header {

@@ -15,7 +15,6 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       depth,
       distances,
       fullRowHeight,
-      getTaskCurrentState,
       handleAddTask,
       handleDeleteTasks,
       handleEditTask,
@@ -57,7 +56,7 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
           onClick(task);
         }
       },
-      [onClick, scrollToTask, selectTaskOnMouseDown, task]
+      [onClick, scrollToTask, selectTaskOnMouseDown, task],
     );
 
     const onContextMenu = useCallback(
@@ -68,7 +67,7 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
         }
         handleOpenContextMenu(task, event.clientX, event.clientY);
       },
-      [handleOpenContextMenu, task]
+      [handleOpenContextMenu, task],
     );
 
     const dependencies = useMemo<Task[]>(() => {
@@ -102,26 +101,9 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
         indexStr: isOverlay ? "" : indexStr,
         depth: isOverlay ? 1 : depth,
         isShowTaskNumbers: isOverlay ? false : isShowTaskNumbers,
-        task: task.type === "empty" ? task : getTaskCurrentState(task),
+        task: task,
       }),
-      [
-        dateSetup,
-        dependencies,
-        depth,
-        distances,
-        handleDeleteTasks,
-        handleAddTask,
-        handleEditTask,
-        hasChildren,
-        icons,
-        isOverlay,
-        indexStr,
-        isClosed,
-        isShowTaskNumbers,
-        onExpanderClick,
-        task,
-        getTaskCurrentState,
-      ]
+      [dateSetup, dependencies, depth, distances, handleDeleteTasks, handleAddTask, handleEditTask, hasChildren, icons, isOverlay, indexStr, isClosed, isShowTaskNumbers, onExpanderClick, task],
     );
 
     const backgroundColor = useMemo(() => {
@@ -188,7 +170,7 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
         })}
       </div>
     );
-  }
+  },
 );
 
 export const TaskListTableRow = memo(TaskListTableRowInner);

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import {
   Column,
@@ -6,11 +6,12 @@ import {
   DateEndColumn,
   DateStartColumn,
   Gantt,
+  GanttRefProps,
   OnCommitTasks,
   OnResizeColumn,
+  RenderTask,
   Task,
   TaskCenterLabel,
-  RenderTask,
   TitleColumn,
   ViewMode,
 } from "../src";
@@ -42,9 +43,19 @@ enum TaskListColumnEnum {
   ASSIGNEE = "Assignee",
 }
 
+const VIEW_MODE_OPTIONS_ARRAY: Array<{ mode: ViewMode; index: number }> = [
+  { mode: ViewMode.Hour, index: 0 },
+  { mode: ViewMode.QuarterDay, index: 1 },
+  { mode: ViewMode.HalfDay, index: 2 },
+  { mode: ViewMode.Day, index: 3 },
+  { mode: ViewMode.Week, index: 4 },
+  { mode: ViewMode.Month, index: 5 },
+  { mode: ViewMode.Year, index: 6 },
+];
+
 export const getColumns = (
   columnTypes: TaskListColumnEnum[],
-  displayColumns: boolean
+  displayColumns: boolean,
 ) => {
   if (!displayColumns) {
     return new Map<TaskListColumnEnum, Column>();
@@ -86,8 +97,26 @@ export const getColumns = (
 };
 
 export const CustomColumns: React.FC<AppProps> = props => {
+  const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Day);
+  const ganttRef = useRef<GanttRefProps>();
+  const handleViewModeMinus = useCallback(() => {
+    setViewMode(prev => {
+      const nextIndex = Math.max((VIEW_MODE_OPTIONS_ARRAY.find(x => x.mode == prev)?.index || 0) - 1, 0);
+      return VIEW_MODE_OPTIONS_ARRAY.find(x => x.index == nextIndex)?.mode || ViewMode.Hour;
+    });
+    ganttRef.current?.scrollToFirstSelectedTask();
+  }, []);
+  const handleViewModePlus = useCallback(() => {
+    setViewMode(prev => {
+      const maxValue = VIEW_MODE_OPTIONS_ARRAY.length - 1;
+      const nextIndex = Math.min((VIEW_MODE_OPTIONS_ARRAY.find(x => x.mode == prev)?.index || maxValue) + 1, maxValue);
+      return VIEW_MODE_OPTIONS_ARRAY.find(x => x.index == nextIndex)?.mode || ViewMode.Year;
+    });
+    ganttRef.current?.scrollToFirstSelectedTask();
+  }, []);
   const [tasks, setTasks] = useState<readonly RenderTask[]>(() => {
     const stateTasks = initTasks();
+
 
     const ideaTask = stateTasks.find(task => task.id === "Idea");
     if (ideaTask && ideaTask.type === "task") {
@@ -114,7 +143,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-expect-error
             window.confirm(
-              `Do yo want to remove relation between ${action.payload.taskFrom.name} and ${action.payload.taskTo.name}?`
+              `Do yo want to remove relation between ${action.payload.taskFrom.name} and ${action.payload.taskTo.name}?`,
             )
           ) {
             setTasks(nextTasks);
@@ -132,7 +161,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
 
       setTasks(nextTasks);
     },
-    []
+    [],
   );
 
   const handleDblClick = useCallback((task: Task) => {
@@ -152,10 +181,10 @@ export const CustomColumns: React.FC<AppProps> = props => {
       TaskListColumnEnum.TO,
       TaskListColumnEnum.PROGRESS,
     ],
-    true
+    true,
   );
   const [displayedColumns, setDisplayedColumns] = useState<Column[]>(
-    Array.from(typeToColumn.values())
+    Array.from(typeToColumn.values()),
   );
 
   const onResizeColumn: OnResizeColumn = (newColumns: readonly Column[]) => {
@@ -166,9 +195,12 @@ export const CustomColumns: React.FC<AppProps> = props => {
 
   return (
     <>
+      <button onClick={handleViewModePlus}>+</button>
+      <button onClick={handleViewModeMinus}>-</button>
       <Gantt
         {...props}
-        viewMode={ViewMode.Day}
+        ref={ganttRef}
+        viewMode={viewMode}
         columns={displayedColumns}
         taskBar={{
           onClick: handleClick,
@@ -182,7 +214,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
             taskYOffset,
             movingAction,
             viewMode,
-            rtl
+            rtl,
           ) => (
             <>
               {movingAction !== "start" && movingAction !== "end" && (
@@ -221,7 +253,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
           tableBottom: {
             height: 90,
             renderContent: () => (
-              <div style={{ backgroundColor: "red", height: '100%' }}>Table bottom content</div>
+              <div style={{ backgroundColor: "red", height: "100%", width: "100%" }}>Table bottom content</div>
             ),
           },
         }}
@@ -229,15 +261,15 @@ export const CustomColumns: React.FC<AppProps> = props => {
           distances: {
             ganttHeight: 600,
             minimumRowDisplayed: 0,
-          }
+          },
         }}
         onAddTaskAction={onAddTask}
         onCommitTasks={onCommitTasks}
         onEditTaskAction={onEditTask}
         tasks={tasks}
         isAdjustToWorkingDates={false}
-        roundStartDate={(date) => date}
-        roundEndDate={(date) => date}
+        // roundStartDate={(date) => date}
+        // roundEndDate={(date) => date}
       />
     </>
   );

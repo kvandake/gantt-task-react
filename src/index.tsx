@@ -1,4 +1,6 @@
 export { Gantt } from "./components/gantt/gantt";
+export { defaultRoundStartDate } from "./components/gantt/default-round-start-date";
+export { defaultRoundEndDate } from "./components/gantt/default-round-end-date";
 export { defaultRenderBottomHeader } from "./components/calendar/default-render-bottom-header";
 
 export { AddColumn } from "./components/task-list/task-list-table-columns/add-column";

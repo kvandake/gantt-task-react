@@ -1,9 +1,12 @@
-import type { Task } from "../types";
+import { Task, TaskBarMoveAction } from "../types";
 
 export const roundTaskDates = (
   task: Task,
   roundStartDate: (date: Date) => Date,
-  roundEndDate: (date: Date) => Date
+  roundEndDate: (date: Date) => Date,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  action: TaskBarMoveAction,
 ): Task => {
   switch (task.type) {
     case "milestone": {

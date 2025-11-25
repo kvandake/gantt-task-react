@@ -4,7 +4,7 @@ import {
   parse,
   startOfMinute,
   startOfDay,
-  endOfDay,
+  endOfDay, addMonths,
 } from "date-fns";
 
 import { Task, RenderTask } from "../src";
@@ -132,7 +132,7 @@ export function initTasksWithoutProject() {
 }
 
 export function initTasks() {
-  const currentDate = new Date();
+  const currentDate = addMonths(new Date(), -2);
   const tasks: RenderTask[] = [
     {
       start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
@@ -269,8 +269,8 @@ export function initTasks() {
       parent: "ProjectSample",
     },
     {
-      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 18),
-      end: new Date(currentDate.getFullYear(), currentDate.getMonth(), 25),
+      start: addMonths(new Date(currentDate.getFullYear(), currentDate.getMonth(), 18), 1),
+      end: addMonths(new Date(currentDate.getFullYear(), currentDate.getMonth(), 25), 3),
       name: "Party Time",
       id: "party",
       progress: 0,

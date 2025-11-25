@@ -81,6 +81,7 @@ import { GanttLocaleProvider } from "../gantt-locale";
 import { GANTT_EN_LOCALE } from "../../locales";
 import { mergeDeepObj } from "../../helpers/obj-helper";
 import { GanttLoader } from "../gantt-loader";
+import { roundTaskDates } from "../../helpers/round-task-dates";
 
 export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
   const {
@@ -181,7 +182,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
 
   const roundStartDate = useCallback(
     (date: Date) => {
-      console.trace('RoundStartDate called with date: ', date)
       return clientRoundStartDate(date, viewMode);
     },
     [clientRoundStartDate, viewMode],
@@ -251,7 +251,7 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
   );
 
   const renderedRowIndexes = useOptimizedList(
-    verticalScrollbarRef,
+    verticalGanttContainerRef,
     "scrollTop",
     fullRowHeight,
     visibleTasks.length,
@@ -595,7 +595,7 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const { columnWidth, rowHeight } = distances;
 
-    let newScrollY = scrollY;
+    let newScrollY = verticalGanttContainerRef.current?.scrollTop || scrollY;
     let newScrollX = scrollX;
     let isX = true;
     switch (event.key) {
@@ -630,11 +630,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       }
       setScrollXProgrammatically(newScrollX);
     } else {
-      if (newScrollY < 0) {
-        newScrollY = 0;
-      } else if (newScrollY > ganttFullHeight - ganttHeight) {
-        newScrollY = ganttFullHeight - ganttHeight;
-      }
       setScrollYProgrammatically(newScrollY);
     }
   };
@@ -948,6 +943,19 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     tasksMap,
     timeStep,
     xStep,
+  });
+
+  const getTaskCurrentState = useGetTaskCurrentState({
+    adjustTaskToWorkingDates,
+    changeInProgress,
+    isAdjustToWorkingDates,
+    isMoveChildsWithParent,
+    isUpdateDisabledParentsOnChange,
+    mapTaskToCoordinates,
+    minAndMaxChildsMap,
+    roundEndDate,
+    roundStartDate,
+    tasksMap,
   });
 
   const {
@@ -1338,18 +1346,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     visibleTasks,
   });
 
-  const getTaskCurrentState = useGetTaskCurrentState({
-    adjustTaskToWorkingDates,
-    changeInProgress,
-    isAdjustToWorkingDates,
-    isMoveChildsWithParent,
-    isUpdateDisabledParentsOnChange,
-    mapTaskToCoordinates,
-    minAndMaxChildsMap,
-    roundEndDate,
-    roundStartDate,
-    tasksMap,
-  });
 
   const getTaskCoordinates = useCallback(
     (task: Task) => countTaskCoordinates(getTaskCurrentState(task)),
@@ -1379,16 +1375,10 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     }
 
     const { id, comparisonLevel = 1 } = tooltipTask;
+    const { changedTask, task } = changeInProgress || {};
 
-    if (changeInProgress) {
-      const { changedTask } = changeInProgress;
-
-      if (
-        changedTask.id === id &&
-        (changedTask.comparisonLevel || 1) === comparisonLevel
-      ) {
-        return changedTask;
-      }
+    if (changedTask && changedTask?.id === task?.id) {
+      return roundTaskDates(changedTask, roundStartDate, roundEndDate, changeInProgress?.action);
     }
 
     const tasksMapOnLevel = tasksMap.get(comparisonLevel);
@@ -1404,7 +1394,7 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     }
 
     return resTask;
-  }, [tooltipTask, tasksMap, changeInProgress]);
+  }, [tooltipTask, changeInProgress, tasksMap, roundStartDate, roundEndDate]);
 
   const additionalLeftSpace = changeInProgress?.additionalLeftSpace || 0;
   const additionalRightSpace = changeInProgress?.additionalRightSpace || 0;

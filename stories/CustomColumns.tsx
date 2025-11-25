@@ -5,6 +5,8 @@ import {
   ColumnProps,
   DateEndColumn,
   DateStartColumn,
+  defaultRoundEndDate,
+  defaultRoundStartDate,
   Gantt,
   GanttRefProps,
   OnCommitTasks,
@@ -12,12 +14,12 @@ import {
   RenderTask,
   Task,
   TaskCenterLabel,
+  TaskOutlineLabel,
   TitleColumn,
   ViewMode,
 } from "../src";
 import { addDays, differenceInDays } from "date-fns";
 import { initTasks, onAddTask, onEditTask } from "./helper";
-import { TaskOutlineLabel } from "../src/components/task-item/task-label";
 
 function wait(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -260,6 +262,7 @@ export const CustomColumns: React.FC<AppProps> = props => {
         theme={{
           distances: {
             ganttHeight: 600,
+            // ganttHeight: (height || 0) - 60,
             minimumRowDisplayed: 0,
           },
         }}
@@ -268,8 +271,8 @@ export const CustomColumns: React.FC<AppProps> = props => {
         onEditTaskAction={onEditTask}
         tasks={tasks}
         isAdjustToWorkingDates={false}
-        // roundStartDate={(date) => date}
-        // roundEndDate={(date) => date}
+        roundStartDate={(date) => defaultRoundStartDate(date, ViewMode.Day)}
+        roundEndDate={(date) => defaultRoundEndDate(date, ViewMode.Day)}
       />
     </>
   );

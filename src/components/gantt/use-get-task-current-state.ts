@@ -28,137 +28,153 @@ type UseGetTaskCurrentStateParams = {
 };
 
 export const useGetTaskCurrentState = ({
-  adjustTaskToWorkingDates,
-  changeInProgress,
-  isAdjustToWorkingDates,
-  isMoveChildsWithParent,
-  isUpdateDisabledParentsOnChange,
-  minAndMaxChildsMap,
-  roundEndDate,
-  roundStartDate,
-  tasksMap,
-}: UseGetTaskCurrentStateParams) => {
+                                         adjustTaskToWorkingDates,
+                                         changeInProgress,
+                                         isAdjustToWorkingDates,
+                                         isMoveChildsWithParent,
+                                         isUpdateDisabledParentsOnChange,
+                                         roundEndDate,
+                                         roundStartDate,
+                                         tasksMap,
+                                       }: UseGetTaskCurrentStateParams) => {
   const getTaskCurrentState = useCallback(
-    (dirtyTask: Task): Task => {
-      const task = roundTaskDates(dirtyTask, roundStartDate, roundEndDate);
+    (currentOriginalTask: Task): Task => {
+      // ----------------------------------------------------------
+      // The aim of getTaskCurrentState is to return the task to display in real time
+      //  + currentOriginalTask is the task as it was before begining to change it
+      //  + changeInProgress.changedTask is the task that corresponds to the exact move on the full task or the start/end date handlers
+      //  + the task is then rounded
+      //  + and then ajusted to working days if required
 
-      if (changeInProgress) {
-        if (changeInProgress.task === dirtyTask) {
-          if (isAdjustToWorkingDates) {
+      const taskIsChanged =
+        changeInProgress &&
+        (changeInProgress.changedTask.start != currentOriginalTask.start ||
+          changeInProgress.changedTask.end != currentOriginalTask.end);
+
+      if (taskIsChanged) {
+        // ------------------------------------------------------------------------------
+        // the aim of this part is to manage the being moved task
+        // It rounds the date and then adjusts it to working dates
+
+        if (changeInProgress.task === currentOriginalTask) {
+          const roundedTask = roundTaskDates(
+            changeInProgress.changedTask,
+            roundStartDate,
+            roundEndDate,
+            changeInProgress.action,
+          );
+          const roundTaskIsDifferentFromOriginal =
+            roundedTask.start != currentOriginalTask.start ||
+            roundedTask.end != currentOriginalTask.end;
+          if (isAdjustToWorkingDates && roundTaskIsDifferentFromOriginal) {
             return adjustTaskToWorkingDates({
               action: changeInProgress.action,
-              changedTask: roundTaskDates(
-                changeInProgress.changedTask,
-                roundStartDate,
-                roundEndDate
-              ),
-              originalTask: dirtyTask,
+              changedTask: roundedTask,
+              originalTask: currentOriginalTask,
             });
           }
 
-          return changeInProgress.changedTask;
+          return roundedTask;
         }
 
+        // ------------------------------------------------------------------------------
+        // the aim of this part is to update child of the being moved task
         if (
           isMoveChildsWithParent &&
           changeInProgress.action === "move" &&
-          checkIsDescendant(changeInProgress.task, task, tasksMap)
+          checkIsDescendant(
+            changeInProgress.task,
+            currentOriginalTask,
+            tasksMap,
+          )
         ) {
           const { tsDiff } = changeInProgress;
 
           const movedTask: Task = {
-            ...task,
-            end: addMilliseconds(task.end, tsDiff),
-            start: addMilliseconds(task.start, tsDiff),
+            ...currentOriginalTask,
+            end: addMilliseconds(currentOriginalTask.end, tsDiff),
+            start: addMilliseconds(currentOriginalTask.start, tsDiff),
           };
 
-          if (isAdjustToWorkingDates) {
+          const roundedTask = roundTaskDates(
+            movedTask,
+            roundStartDate,
+            roundEndDate,
+            changeInProgress.action,
+          );
+          const roundTaskIsDifferentFromOriginal =
+            roundedTask.start != currentOriginalTask.start ||
+            roundedTask.end != currentOriginalTask.end;
+          if (isAdjustToWorkingDates && roundTaskIsDifferentFromOriginal) {
             return adjustTaskToWorkingDates({
               action: changeInProgress.action,
-              changedTask: roundTaskDates(
-                movedTask,
-                roundStartDate,
-                roundEndDate
-              ),
-              originalTask: task,
+              changedTask: roundedTask,
+              originalTask: currentOriginalTask,
             });
           }
 
-          return movedTask;
+          return roundedTask;
         }
 
+        // ------------------------------------------------------------------------------
+        // the aim of this part is to update parents of the being moved task
         if (
           isUpdateDisabledParentsOnChange &&
-          task.isDisabled &&
-          task.id == changeInProgress.task.parent &&
-          checkIsDescendant(task, changeInProgress.task, tasksMap)
+          currentOriginalTask.isDisabled &&
+          currentOriginalTask.id == changeInProgress.task.parent &&
+          checkIsDescendant(
+            currentOriginalTask,
+            changeInProgress.task,
+            tasksMap,
+          )
         ) {
-          const minAndMaxChildsOnLevelMap = minAndMaxChildsMap.get(
-            task.comparisonLevel || 1
-          );
+          // Get all the children of the current Task
+          const childrenTasks = Array.from(
+            tasksMap.get(currentOriginalTask.comparisonLevel || 1).values(),
+          )
+            .filter(task => {
+              return (
+                task.parent == currentOriginalTask.id && task.type !== "empty"
+              );
+            })
+            .map(task => task as Task);
 
-          if (!minAndMaxChildsOnLevelMap) {
-            throw new Error("Min and max childs on level are not defined");
-          }
+          const startDates = childrenTasks.map(task => {
+            if (task.id == changeInProgress.changedTask.id) {
+              return getTaskCurrentState(task).start;
+            } else {
+              return task.start;
+            }
+          });
+          const endDates = childrenTasks.map(task => {
+            if (task.id == changeInProgress.changedTask.id) {
+              return getTaskCurrentState(task).end;
+            } else {
+              return task.end;
+            }
+          });
 
-          const minAndMaxChilds = minAndMaxChildsOnLevelMap.get(task.id);
-
-          if (!minAndMaxChilds) {
-            throw new Error(
-              `Min and max childs on level are not defined for task "${task.id}"`
-            );
-          }
-
-          const [
-            [firstMinBeforeChange, secondMinBeforeChange],
-            [firstMaxBeforeChange, secondMaxBeforeChange],
-          ] = minAndMaxChilds;
-
-          if (firstMinBeforeChange && firstMaxBeforeChange) {
-            const firstMin = getTaskCurrentState(firstMinBeforeChange);
-            const secondMin = getTaskCurrentState(
-              secondMinBeforeChange || firstMinBeforeChange
-            );
-
-            const firstMax = getTaskCurrentState(firstMaxBeforeChange);
-            const secondMax = getTaskCurrentState(
-              secondMaxBeforeChange || firstMaxBeforeChange
-            );
-
-            const minStartDate = min([
-              firstMin.start,
-              secondMin.start,
-              roundStartDate(changeInProgress.changedTask.start),
-            ]);
-
-            const maxEndDate = max([
-              firstMax.end,
-              secondMax.end,
-              roundEndDate(changeInProgress.changedTask.end),
-            ]);
-
-            return {
-              ...task,
-              end: maxEndDate,
-              start: minStartDate,
-            };
-          }
+          return {
+            ...currentOriginalTask,
+            start: min(startDates),
+            end: max(endDates),
+          };
         }
       }
 
-      return task;
+      const progressIsChanged =
+        changeInProgress &&
+        changeInProgress.task === currentOriginalTask &&
+        changeInProgress.changedTask.progress != currentOriginalTask.progress;
+      if (progressIsChanged) {
+        return {
+          ...currentOriginalTask,
+          progress: changeInProgress.changedTask.progress,
+        };
+      }
+      return currentOriginalTask;
     },
-    [
-      adjustTaskToWorkingDates,
-      changeInProgress,
-      isAdjustToWorkingDates,
-      isMoveChildsWithParent,
-      isUpdateDisabledParentsOnChange,
-      minAndMaxChildsMap,
-      roundEndDate,
-      roundStartDate,
-      tasksMap,
-    ]
+    [adjustTaskToWorkingDates, changeInProgress, isAdjustToWorkingDates, isMoveChildsWithParent, isUpdateDisabledParentsOnChange, roundEndDate, roundStartDate, tasksMap],
   );
 
   return getTaskCurrentState;

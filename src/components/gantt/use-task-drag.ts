@@ -595,6 +595,7 @@ export const useTaskDrag = ({
         newChangedTask,
         roundStartDate,
         roundEndDate,
+        changeInProgress.action,
       );
 
       onDateChange(action, roundedChangedTask, task);

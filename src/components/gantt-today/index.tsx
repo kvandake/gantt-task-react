@@ -5,7 +5,6 @@ import styles from "./gantt-today.module.css";
 import { getDaysInMonth } from "../../helpers/date-helper";
 
 export type GanttTodayProps = {
-  additionalLeftSpace: number;
   distances: Distances;
   ganttFullHeight: number;
   isUnknownDates: boolean;
@@ -15,7 +14,6 @@ export type GanttTodayProps = {
 };
 
 const GanttTodayInner: React.FC<GanttTodayProps> = ({
-  additionalLeftSpace,
   distances: { columnWidth },
   ganttFullHeight,
   isUnknownDates,
@@ -43,6 +41,8 @@ const GanttTodayInner: React.FC<GanttTodayProps> = ({
             today.getMonth(),
             today.getFullYear()
           );
+
+
           const percent = dayInMonth / maxDaysInMonth;
           return 1 + percent * 0.5;
         }
@@ -62,7 +62,7 @@ const GanttTodayInner: React.FC<GanttTodayProps> = ({
     return (
       <>
         <rect
-          x={additionalLeftSpace + x}
+          x={x}
           y={0}
           width={2}
           height={ganttFullHeight}
@@ -77,15 +77,7 @@ const GanttTodayInner: React.FC<GanttTodayProps> = ({
         />
       </>
     );
-  }, [
-    additionalLeftSpace,
-    columnWidth,
-    ganttFullHeight,
-    isUnknownDates,
-    rtl,
-    startDate,
-    viewMode,
-  ]);
+  }, [columnWidth, ganttFullHeight, isUnknownDates, rtl, startDate, viewMode]);
 
   return <g className="today">{today}</g>;
 };

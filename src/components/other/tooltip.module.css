@@ -2,7 +2,7 @@
 .tooltipDefaultContainer {
   background: #fff;
   padding: 12px;
-  box-shadow: var(--gant--tooltip-box-shadow);
+  box-shadow: var(--gantt-tooltip-box-shadow);
   border-radius: var(--gantt-shape-border-radius);
 }
 

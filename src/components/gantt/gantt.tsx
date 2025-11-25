@@ -17,6 +17,9 @@ import {
   Task,
   TaskBarMoveAction,
   ViewMode,
+  GanttComponentsConfig,
+  GanttFeaturesConfig,
+  FrozenDateRange,
 } from "../../types";
 import { GanttTodayProps } from "../gantt-today";
 import { ganttDateRange } from "../../helpers/date-helper";
@@ -58,11 +61,14 @@ import { useSelection } from "./use-selection";
 import { defaultCheckIsHoliday } from "./default-check-is-holiday";
 import { defaultRoundEndDate } from "./default-round-end-date";
 import { defaultRoundStartDate } from "./default-round-start-date";
+import { buildFreezeSegments } from "../../helpers/freeze-helper";
 
 import { useContextMenu } from "./use-context-menu";
 import { ContextMenu } from "../context-menu";
 import { useHandleAction } from "./use-handle-action";
 import { defaultGetCopiedTaskId } from "./default-get-copied-task-id";
+import { GanttSelectionProvider } from "./context/selection-context";
+import { GanttViewProvider } from "./context/gantt-view-context";
 
 import { copyTasks } from "../../helpers/copy-tasks";
 import {
@@ -88,6 +94,8 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     theme: clientTheme,
     taskBar: clientTaskBar,
     taskList: clientTaskList,
+    components: componentsProp,
+    features: featuresProp,
 
     authorizedRelations = [
       "startToStart",
@@ -119,6 +127,8 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     viewDate,
     viewMode = ViewMode.Day,
     locale: clientLocale,
+    frozenDates: frozenDatesProp = [],
+    calculateFrozenDates: calculateFrozenDatesProp = true,
   } = props;
   const ganttSVGRef = useRef<SVGSVGElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -127,6 +137,29 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
   const theme = useMemo(() => buildGanttTheme(clientTheme), [clientTheme]);
   const { distances, dateFormats, rtl } = theme;
   const [waitCommitTasks, setWaitCommitTasks] = useState(false);
+
+  const components = useMemo(
+    () => ({
+      TaskList: componentsProp?.TaskList ?? TaskList,
+      TaskBoard: componentsProp?.TaskBoard ?? TaskGantt,
+      Tooltip: componentsProp?.Tooltip ?? Tooltip,
+    }),
+    [componentsProp],
+  );
+
+  const features = useMemo<Required<GanttFeaturesConfig>>(
+    () => ({
+      relations: true,
+      baseline: true,
+      groups: true,
+      freeze: true,
+      tooltip: true,
+      ...(featuresProp ?? {}),
+    }),
+    [featuresProp],
+  );
+  const relationsEnabled = features.relations !== false;
+  const tooltipEnabled = features.tooltip !== false;
 
   const taskBar = useMemo(() => {
     return mergeDeepObj(
@@ -327,6 +360,35 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     selectedIdsMirror,
   } = useSelection(taskToRowIndexMap, rowIndexToTaskMap, checkTaskIdExists, onSelectTaskIds);
 
+  const selectionContextValue = useMemo(
+    () => ({
+      checkHasCopyTasks,
+      checkHasCutTasks,
+      copyIdsMirror,
+      copySelectedTasks,
+      copyTask,
+      cutIdsMirror,
+      cutSelectedTasks,
+      cutTask,
+      resetSelectedTasks,
+      selectTaskOnMouseDown,
+      selectedIdsMirror,
+    }),
+    [
+      checkHasCopyTasks,
+      checkHasCutTasks,
+      copyIdsMirror,
+      copySelectedTasks,
+      copyTask,
+      cutIdsMirror,
+      cutSelectedTasks,
+      cutTask,
+      resetSelectedTasks,
+      selectTaskOnMouseDown,
+      selectedIdsMirror,
+    ],
+  );
+
   const [startDate, minTaskDate, datesLength] = useMemo(
     () =>
       ganttDateRange(visibleTasks, distances, viewMode, taskBar.preStepsCount),
@@ -354,6 +416,8 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     dateSetup,
     isAdjustToWorkingDates,
     minTaskDate,
+    frozenDates: frozenDatesProp,
+    freezeEnabled: features.freeze !== false,
   });
 
   const renderedColumnIndexes = useOptimizedList(
@@ -1345,6 +1409,8 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     tasksMap,
     visibleTasks,
   });
+  const noopRelationStart = useCallback(() => undefined, []);
+  const noopArrowDoubleClick = useCallback(() => undefined, []);
 
 
   const getTaskCoordinates = useCallback(
@@ -1465,6 +1531,32 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     ],
   );
 
+  const freezeSegments = useMemo(
+    () => {
+      if (features.freeze === false) {
+        return [];
+      }
+
+      return buildFreezeSegments({
+        frozenDates: frozenDatesProp,
+        startDate,
+        viewMode,
+        columnWidth: distances.columnWidth,
+        datesLength,
+        calculateSegments: calculateFrozenDatesProp,
+      });
+    },
+    [
+      frozenDatesProp,
+      startDate,
+      viewMode,
+      distances.columnWidth,
+      datesLength,
+      calculateFrozenDatesProp,
+      features.freeze,
+    ],
+  );
+
   const renderTaskBarProps: TaskGanttContentProps = useMemo(
     () => ({
       ...taskBar,
@@ -1472,7 +1564,7 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
         task.id === changeInProgress?.changedTask?.id
           ? changeInProgress.action
           : null,
-      authorizedRelations,
+      authorizedRelations: relationsEnabled ? authorizedRelations : [],
       additionalLeftSpace,
       additionalRightSpace,
       checkIsHoliday,
@@ -1484,26 +1576,29 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       distances,
       endColumnIndex,
       fullRowHeight,
-      ganttRelationEvent,
+      ganttRelationEvent: relationsEnabled ? ganttRelationEvent : null,
       getDate,
       getTaskCoordinates,
       waitCommitTasks,
-      onTaskBarRelationStart: handleBarRelationStart,
+      onTaskBarRelationStart: relationsEnabled
+        ? handleBarRelationStart
+        : noopRelationStart,
       onDeleteTask: taskForDelete => handleDeleteTasks([taskForDelete]),
       onTaskBarDragStart: handleTaskDragStart,
       onTooltipTask: onChangeTooltipTask,
       mapGlobalRowIndexToTask,
-      onArrowDoubleClick,
+      onArrowDoubleClick: relationsEnabled
+        ? onArrowDoubleClick
+        : noopArrowDoubleClick,
       renderedRowIndexes,
       rtl,
-      selectTaskOnMouseDown,
-      selectedIdsMirror,
       startColumnIndex,
       taskHalfHeight,
       taskHeight,
       taskYOffset,
       visibleTasksMirror,
       viewMode,
+      relationsEnabled,
     }),
     [
       viewMode,
@@ -1531,8 +1626,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       onArrowDoubleClick,
       renderedRowIndexes,
       rtl,
-      selectTaskOnMouseDown,
-      selectedIdsMirror,
       startColumnIndex,
       taskHalfHeight,
       taskHeight,
@@ -1541,6 +1634,9 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       changeInProgress?.changedTask?.id,
       changeInProgress?.action,
       handleDeleteTasks,
+      relationsEnabled,
+      noopArrowDoubleClick,
+      noopRelationStart,
     ],
   );
 
@@ -1549,7 +1645,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       ...taskList,
       childTasksMap,
       columnsProp,
-      cutIdsMirror,
       dateSetup,
       dependencyMap,
       distances,
@@ -1568,8 +1663,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       onExpanderClick,
       scrollToBottomStep,
       scrollToTopStep,
-      selectTaskOnMouseDown,
-      selectedIdsMirror,
       scrollToTask,
       taskListContainerRef,
       taskListRef,
@@ -1579,7 +1672,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     [
       childTasksMap,
       columnsProp,
-      cutIdsMirror,
       dateSetup,
       dependencyMap,
       distances,
@@ -1599,8 +1691,6 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
       scrollToBottomStep,
       scrollToTask,
       scrollToTopStep,
-      selectTaskOnMouseDown,
-      selectedIdsMirror,
       taskList,
       taskListContainerRef,
       visibleTasks,
@@ -1619,74 +1709,116 @@ export const Gantt = forwardRef<GanttRefProps, GanttProps>((props, ref) => {
     },
   }), [scrollToTask, selectedIdsMirror, sortedTasks]);
 
+  const viewContextValue = useMemo(
+    () => ({
+      childTasksMap,
+      rootTasksMap,
+      dependencyMap,
+      dependentMap,
+      visibleTasks,
+      viewMode,
+      distances,
+      comparisonLevels,
+      features,
+      onRelationChange,
+      scrollToTask,
+      frozenDates: frozenDatesProp,
+      calculateFrozenDates: calculateFrozenDatesProp,
+    }),
+    [
+      childTasksMap,
+      rootTasksMap,
+      dependencyMap,
+      dependentMap,
+      visibleTasks,
+      viewMode,
+      distances,
+      comparisonLevels,
+      features,
+      onRelationChange,
+      scrollToTask,
+      frozenDatesProp,
+      calculateFrozenDatesProp,
+    ],
+  );
+
+  const TaskListComponent = components.TaskList;
+  const TaskBoardComponent = components.TaskBoard;
+  const TooltipComponent = components.Tooltip;
+
   return (
     <GanttThemeProvider theme={theme}>
       {cssVars => (
         <GanttLocaleProvider locale={locale}>
-          <div
-            style={cssVars}
-            className={`${styles.wrapper} gantt`}
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            ref={wrapperRef}
-            data-testid={"gantt"}
-          >
-            {/* {task-list-table-columns.length > 0 && <TaskList {...tableProps} />} */}
-            {(!columnsProp || columnsProp.length > 0) && (
-              <TaskList {...renderTaskListProps} />
-            )}
+          <GanttViewProvider value={viewContextValue}>
+            <GanttSelectionProvider value={selectionContextValue}>
+              <div
+                style={cssVars}
+                className={`${styles.wrapper} gantt`}
+                onKeyDown={handleKeyDown}
+                tabIndex={0}
+                ref={wrapperRef}
+                data-testid={"gantt"}
+              >
+                {/* {task-list-table-columns.length > 0 && <TaskList {...tableProps} />} */}
+                {(!columnsProp || columnsProp.length > 0) && (
+                  <TaskListComponent {...renderTaskListProps} />
+                )}
 
-            <TaskGantt
-              allowMoveTaskBar={taskBar.allowMoveTaskBar}
-              barProps={renderTaskBarProps}
-              calendarProps={calendarProps}
-              fullRowHeight={fullRowHeight}
-              fullSvgWidth={fullSvgWidth}
-              ganttFullHeight={ganttFullHeight}
-              ganttHeight={ganttHeight}
-              ganttSVGRef={ganttSVGRef}
-              ganttTodayProps={gridProps}
-              horizontalContainerRef={horizontalContainerRef}
-              verticalScrollbarRef={verticalScrollbarRef}
-              onVerticalScrollbarScrollX={onVerticalScrollbarScrollX}
-              verticalGanttContainerRef={verticalGanttContainerRef}
-            />
+                <TaskBoardComponent
+                  allowMoveTaskBar={taskBar.allowMoveTaskBar}
+                  barProps={renderTaskBarProps}
+                  calendarProps={calendarProps}
+                  fullRowHeight={fullRowHeight}
+                  fullSvgWidth={fullSvgWidth}
+                  ganttFullHeight={ganttFullHeight}
+                  ganttHeight={ganttHeight}
+                  ganttSVGRef={ganttSVGRef}
+                  ganttTodayProps={gridProps}
+                  horizontalContainerRef={horizontalContainerRef}
+                  verticalScrollbarRef={verticalScrollbarRef}
+                  onVerticalScrollbarScrollX={onVerticalScrollbarScrollX}
+                  verticalGanttContainerRef={verticalGanttContainerRef}
+                freezeSegments={freezeSegments}
+                />
 
-            {tooltipTaskFromMap && (
-              <Tooltip
-                tooltipX={tooltipX}
-                tooltipY={tooltipY}
-                tooltipStrategy={tooltipStrategy}
-                setFloatingRef={setFloatingRef}
-                getFloatingProps={getFloatingProps}
-                task={tooltipTaskFromMap}
-                TooltipContent={taskBar.TooltipContent}
-              />
-            )}
+                {tooltipEnabled && tooltipTaskFromMap && (
+                  <TooltipComponent
+                    tooltipX={tooltipX}
+                    tooltipY={tooltipY}
+                    tooltipStrategy={tooltipStrategy}
+                    setFloatingRef={setFloatingRef}
+                    getFloatingProps={getFloatingProps}
+                    task={tooltipTaskFromMap}
+                    TooltipContent={taskBar.TooltipContent}
+                  />
+                )}
 
-            <VerticalScroll
-              ganttFullHeight={ganttFullHeight}
-              ganttHeight={ganttHeight}
-              headerHeight={distances.headerHeight}
-              isChangeInProgress={Boolean(changeInProgress)}
-              onScroll={onVerticalScrollbarScrollY}
-              rtl={rtl}
-              verticalScrollbarRef={verticalScrollbarRef}
-            />
-            {taskList.enableTableListContextMenu && !waitCommitTasks && (
-              <ContextMenu
-                checkHasCopyTasks={checkHasCopyTasks}
-                checkHasCutTasks={checkHasCutTasks}
-                contextMenu={contextMenu}
-                distances={distances}
-                handleAction={handleAction}
-                handleCloseContextMenu={handleCloseContextMenu}
-                options={contextMenuOptions}
-              />
-            )}
+                <VerticalScroll
+                  ganttFullHeight={ganttFullHeight}
+                  ganttHeight={ganttHeight}
+                  headerHeight={distances.headerHeight}
+                  isChangeInProgress={Boolean(changeInProgress)}
+                  onScroll={onVerticalScrollbarScrollY}
+                  rtl={rtl}
+                  verticalScrollbarRef={verticalScrollbarRef}
+                />
+                {taskList.enableTableListContextMenu && !waitCommitTasks && (
+                  <ContextMenu
+                    checkHasCopyTasks={checkHasCopyTasks}
+                    checkHasCutTasks={checkHasCutTasks}
+                    contextMenu={contextMenu}
+                    distances={distances}
+                    handleAction={handleAction}
+                    handleCloseContextMenu={handleCloseContextMenu}
+                    options={contextMenuOptions}
+                  />
+                )}
 
-            <GanttLoader loading={waitCommitTasks} />
-          </div>
+                <GanttLoader loading={waitCommitTasks} />
+              </div>
+            </GanttSelectionProvider>
+          </GanttViewProvider>
         </GanttLocaleProvider>
       )}
     </GanttThemeProvider>

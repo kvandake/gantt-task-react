@@ -12,6 +12,13 @@ export { DependenciesColumn } from "./components/task-list/task-list-table-colum
 export { TitleColumn } from "./components/task-list/task-list-table-columns/title-column";
 export { TaskResponsiveLabel, TaskCenterLabel, TaskOutlineLabel } from "./components/task-item/task-label";
 export { useTaskListColumnsBuilder } from "./components/task-list/task-list-table-columns/use-task-list-columns-builder";
+export {
+  useRelations,
+  useBaseline,
+  useGroups,
+  useZoom,
+  useFreezeDates,
+} from "./components/gantt/context/gantt-view-context";
 
 export * from "./components/context-menu-options";
 

@@ -80,6 +80,8 @@ export const DEFAULT_THEME: GanttTheme = {
     milestoneBackgroundSelectedColor: "#E64A19",
     milestoneBackgroundCriticalColor: "#D84315",
     milestoneBackgroundSelectedCriticalColor: "#BF360C",
+    freezeBackgroundColor: "rgba(52, 152, 219, 0.15)",
+    freezeStripeColor: "rgba(52, 152, 219, 0.35)",
   },
   typography: {
     fontSize: "14px",

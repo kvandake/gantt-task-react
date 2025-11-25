@@ -2,7 +2,7 @@ import type { MouseEvent } from "react";
 import { forwardRef, memo, useCallback, useMemo } from "react";
 
 import { ColumnData, Task, TaskListTableRowProps } from "../../../types";
-
+import { useGanttSelection } from "../../gantt/context/selection-context";
 import styles from "./task-list-table-row.module.css";
 import { DragIndicatorIcon } from "../../icons/drag-indicator-icon";
 
@@ -23,15 +23,12 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       icons,
       indexStr,
       isClosed,
-      isCut,
       isEven,
-      isSelected,
       isDragging,
       isShowTaskNumbers,
       onClick,
       onExpanderClick,
       scrollToTask,
-      selectTaskOnMouseDown,
       style,
       task,
       moveHandleProps,
@@ -39,6 +36,13 @@ const TaskListTableRowInner = forwardRef<HTMLDivElement, TaskListTableRowProps>(
       moveOverPosition,
     } = props;
     const { id, comparisonLevel = 1 } = task;
+    const {
+      cutIdsMirror,
+      selectTaskOnMouseDown,
+      selectedIdsMirror,
+    } = useGanttSelection();
+    const isCut = Boolean(cutIdsMirror[id]);
+    const isSelected = Boolean(selectedIdsMirror[id]);
 
     const onRootMouseDown = useCallback(
       (event: MouseEvent) => {

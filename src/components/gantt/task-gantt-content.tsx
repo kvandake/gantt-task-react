@@ -1,4 +1,4 @@
-import React, { memo, MouseEvent, ReactNode, useMemo } from "react";
+import React, { memo, ReactNode, useMemo } from "react";
 
 import {
   ChildByLevelMap,
@@ -25,6 +25,7 @@ import styles from "./task-gantt-content.module.css";
 import { checkHasChildren } from "../../helpers/check-has-children";
 import type { OptimizedListParams } from "../../helpers/use-optimized-list";
 import { BarComparison } from "../task-item/bar-comparison";
+import { useGanttSelection } from "./context/selection-context";
 
 const DELTA_RELATION_WIDTH = 100;
 
@@ -59,8 +60,6 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   renderedRowIndexes: OptimizedListParams | null;
   rtl: boolean;
   waitCommitTasks?: boolean;
-  selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
-  selectedIdsMirror: Readonly<Record<string, true>>;
   onTooltipTask: (task: Task | null, element: Element | null) => void;
   startColumnIndex: number;
   taskYOffset: number;
@@ -73,6 +72,7 @@ export interface TaskGanttContentProps extends GanttTaskBarActions {
   isRelationChangeable?: (task: Task) => boolean;
   taskBarMovingAction: (task: RenderTask) => TaskBarMoveAction | null;
   viewMode: ViewMode;
+  relationsEnabled?: boolean;
 }
 
 const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
@@ -100,8 +100,6 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
     onClick,
     renderedRowIndexes,
     rtl,
-    selectTaskOnMouseDown,
-    selectedIdsMirror,
     onTooltipTask,
     startColumnIndex,
     taskYOffset,
@@ -116,7 +114,9 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
     taskBarMovingAction,
     waitCommitTasks,
     viewMode,
+    relationsEnabled = true,
   } = props;
+  const { selectTaskOnMouseDown, selectedIdsMirror } = useGanttSelection();
 
   const renderedHolidays = useMemo(() => {
     const { columnWidth } = distances;
@@ -318,10 +318,14 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
         addedDependencies[comparisonLevel] = addedDependenciesAtLevel;
       }
 
-      const addedDependenciesAtTask = addedDependenciesAtLevel[taskId] || {};
+    const addedDependenciesAtTask = addedDependenciesAtLevel[taskId] || {};
       if (!addedDependenciesAtLevel[taskId]) {
         addedDependenciesAtLevel[taskId] = addedDependenciesAtTask;
       }
+
+    if (!relationsEnabled) {
+      continue;
+    }
 
       const dependenciesAtLevel = dependencyMap.get(comparisonLevel);
 
@@ -512,6 +516,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
     isRelationChangeable,
     visibleTasksMirror,
     onArrowDoubleClick,
+    relationsEnabled,
   ]);
 
   return (
@@ -537,7 +542,7 @@ const TaskGanttContentInner: React.FC<TaskGanttContentProps> = (props) => {
         {renderedTasks}
       </g>
 
-      {ganttRelationEvent && (
+      {relationsEnabled && ganttRelationEvent && (
         <RelationLine
           x1={ganttRelationEvent.startX}
           x2={ganttRelationEvent.endX}

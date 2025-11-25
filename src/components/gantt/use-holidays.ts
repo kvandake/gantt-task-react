@@ -1,10 +1,10 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 import { adjustTaskToWorkingDates as defaultAdjustTaskToWorkingDates } from "../../helpers/adjust-task-to-working-dates";
 import { getNextWorkingDate as defaultGetNextWorkingDate } from "../../helpers/get-next-working-date";
 import { getPreviousWorkingDate as defaultGetPreviousWorkingDate } from "../../helpers/get-previous-working-date";
 
-import { AdjustTaskToWorkingDatesParams, DateSetup } from "../../types";
+import { AdjustTaskToWorkingDatesParams, DateSetup, FrozenDateRange } from "../../types";
 
 type UseHolidaysParams = {
   checkIsHolidayProp: (
@@ -15,6 +15,8 @@ type UseHolidaysParams = {
   dateSetup: DateSetup;
   isAdjustToWorkingDates: boolean;
   minTaskDate: Date;
+  frozenDates?: readonly FrozenDateRange[];
+  freezeEnabled?: boolean;
 };
 
 export const useHolidays = ({
@@ -22,10 +24,34 @@ export const useHolidays = ({
   dateSetup,
   isAdjustToWorkingDates,
   minTaskDate,
+  frozenDates,
+  freezeEnabled,
 }: UseHolidaysParams) => {
+  const frozenRanges = useMemo(
+    () =>
+      freezeEnabled
+        ? (frozenDates ?? []).map(range => ({
+            start: range.start.getTime(),
+            end: range.end.getTime(),
+          }))
+        : [],
+    [freezeEnabled, frozenDates],
+  );
+
   const checkIsHoliday = useCallback(
-    (date: Date) => checkIsHolidayProp(date, minTaskDate, dateSetup),
-    [checkIsHolidayProp, dateSetup, minTaskDate]
+    (date: Date) => {
+      if (checkIsHolidayProp(date, minTaskDate, dateSetup)) {
+        return true;
+      }
+
+      if (!frozenRanges.length) {
+        return false;
+      }
+
+      const time = date.getTime();
+      return frozenRanges.some(({ start, end }) => time >= start && time < end);
+    },
+    [checkIsHolidayProp, dateSetup, frozenRanges, minTaskDate],
   );
 
   const getNextWorkingDate = useCallback(

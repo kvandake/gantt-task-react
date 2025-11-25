@@ -178,7 +178,6 @@ export interface TaskListTableProps {
   allowMoveTask: AllowReorderTask;
   childTasksMap: ChildByLevelMap;
   columns: readonly Column[];
-  cutIdsMirror: Readonly<Record<string, true>>;
   dateSetup: DateSetup;
   dependencyMap: DependencyMap;
   distances: Distances;
@@ -203,8 +202,6 @@ export interface TaskListTableProps {
   onExpanderClick: (task: Task) => void;
   renderedIndexes: OptimizedListParams | null;
   scrollToTask: (task: Task) => void;
-  selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
-  selectedIdsMirror: Readonly<Record<string, true>>;
   taskListWidth: number;
   tasks: readonly RenderTask[];
 }
@@ -234,14 +231,11 @@ export type TaskListTableRowProps = {
   isDragging?: boolean;
   isOverlay?: boolean;
   isClosed: boolean;
-  isCut: boolean;
   isEven: boolean;
-  isSelected: boolean;
   isShowTaskNumbers: boolean;
   onClick: (task: RenderTask) => void;
   onExpanderClick: (task: Task) => void;
   scrollToTask: (task: Task) => void;
-  selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
   style?: CSSProperties;
   task: RenderTask;
 };

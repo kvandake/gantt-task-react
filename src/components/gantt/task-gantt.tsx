@@ -6,6 +6,7 @@ import { Calendar, CalendarProps } from "../calendar/calendar";
 import { TaskGanttContent, TaskGanttContentProps } from "./task-gantt-content";
 import styles from "./gantt.module.css";
 import { GanttTaskBarActions } from "../../types";
+import { FreezeSegment } from "../../helpers/freeze-helper";
 
 export interface TaskGanttProps extends GanttTaskBarActions {
   barProps: TaskGanttContentProps;
@@ -20,6 +21,7 @@ export interface TaskGanttProps extends GanttTaskBarActions {
   verticalScrollbarRef: RefObject<HTMLDivElement>;
   onVerticalScrollbarScrollX: (event: SyntheticEvent<HTMLDivElement>) => void;
   verticalGanttContainerRef: RefObject<HTMLDivElement>;
+  freezeSegments?: readonly FreezeSegment[];
 }
 
 interface MouseDragState {
@@ -47,6 +49,7 @@ const TaskGanttInner: React.FC<TaskGanttProps> = (props) => {
     onVerticalScrollbarScrollX,
     verticalGanttContainerRef,
     verticalScrollbarRef,
+    freezeSegments = [],
   }= props;
   const contentRef = React.useRef<SVGRectElement>(null);
   const moveStateVertRef = useRef<MouseDragState | null>(null);
@@ -196,6 +199,18 @@ const TaskGanttInner: React.FC<TaskGanttProps> = (props) => {
             fontFamily={"var(--gantt-font-family)"}
             ref={ganttSVGRef}
           >
+            {freezeSegments.map(segment => (
+              <rect
+                key={`freeze-${segment.start.getTime()}-${segment.end.getTime()}`}
+                x={segment.x + (additionalLeftSpace || 0)}
+                y={0}
+                width={segment.width}
+                height={ganttFullHeight}
+                fill={"var(--gantt-freeze-background-color)"}
+                opacity={0.45}
+                pointerEvents={"none"}
+              />
+            ))}
             <GanttToday {...ganttTodayProps} />
             <rect ref={contentRef} width={"100%"} height={"100%"} fill={"transparent"} />
             <TaskGanttContent {...barProps} />

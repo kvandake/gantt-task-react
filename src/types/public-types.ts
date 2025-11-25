@@ -1,4 +1,7 @@
 import type { ComponentType, ReactNode } from "react";
+import type { Strategy } from "@floating-ui/dom";
+import type { TaskListProps } from "../components/task-list";
+import type { TaskGanttProps } from "../components/gantt/task-gantt";
 
 import { GanttPartialTheme } from "./theme-types";
 import { GanttLocale } from "./theme-locale";
@@ -44,6 +47,35 @@ export type RenderBottomHeader = (
   index: number,
   isUnknownDates: boolean
 ) => ReactNode;
+
+export interface GanttTooltipComponentProps {
+  tooltipX: number | null;
+  tooltipY: number | null;
+  tooltipStrategy: Strategy;
+  setFloatingRef: (node: HTMLElement | null) => void;
+  getFloatingProps: () => Record<string, unknown>;
+  task: Task;
+  TooltipContent: ComponentType<{ task: Task }>;
+}
+
+export interface GanttComponentsConfig {
+  TaskList?: ComponentType<TaskListProps>;
+  TaskBoard?: ComponentType<TaskGanttProps>;
+  Tooltip?: ComponentType<GanttTooltipComponentProps>;
+}
+
+export interface GanttFeaturesConfig {
+  relations?: boolean;
+  baseline?: boolean;
+  groups?: boolean;
+  freeze?: boolean;
+  tooltip?: boolean;
+}
+
+export interface FrozenDateRange {
+  start: Date;
+  end: Date;
+}
 
 export type OnArrowDoubleClick = (
   taskFrom: Task,
@@ -310,6 +342,16 @@ export interface GanttProps {
   theme?: GanttPartialTheme;
 
   /**
+   * Override built-in UI pieces
+   */
+  components?: GanttComponentsConfig;
+
+  /**
+   * Feature toggles
+   */
+  features?: GanttFeaturesConfig;
+
+  /**
    * Locale
    */
   locale?: GanttLocale;
@@ -434,6 +476,16 @@ export interface GanttProps {
    * Move dates of tasks to working days during change
    */
   isAdjustToWorkingDates?: boolean;
+
+  /**
+   * Frozen date ranges that should not be counted in plan/fact
+   */
+  frozenDates?: readonly FrozenDateRange[];
+
+  /**
+   * Calculate frozen date offsets on the client
+   */
+  calculateFrozenDates?: boolean;
 }
 
 export interface GanttTaskBarActions {

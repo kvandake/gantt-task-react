@@ -24,6 +24,7 @@ import { TaskListSortableTable } from "./task-list-sortable-table";
 import { TaskListTable } from "./task-list-table";
 import styles from "./task-list.module.css";
 import { checkHasChildren } from "../../helpers/check-has-children";
+import { useGanttSelection } from "../gantt/context/selection-context";
 
 export type TaskListProps = {
   ganttRef: RefObject<HTMLDivElement>;
@@ -32,7 +33,6 @@ export type TaskListProps = {
   canResizeColumns?: boolean;
   childTasksMap: ChildByLevelMap;
   columnsProp: readonly Column[];
-  cutIdsMirror: Readonly<Record<string, true>>;
   dateSetup: DateSetup;
   dependencyMap: DependencyMap;
   distances: Distances;
@@ -59,8 +59,6 @@ export type TaskListProps = {
   scrollToBottomStep: () => void;
   scrollToTask: (task: Task) => void;
   scrollToTopStep: () => void;
-  selectTaskOnMouseDown: (taskId: string, event: MouseEvent) => void;
-  selectedIdsMirror: Readonly<Record<string, true>>;
   taskListContainerRef: RefObject<HTMLDivElement>;
   taskListRef: RefObject<HTMLDivElement>;
   tasks: readonly RenderTask[];
@@ -73,7 +71,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
   canResizeColumns,
   childTasksMap,
   columnsProp,
-  cutIdsMirror,
   dateSetup,
   dependencyMap,
   distances,
@@ -94,8 +91,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
   onExpanderClick,
   onClick,
   scrollToTask,
-  selectTaskOnMouseDown,
-  selectedIdsMirror,
   ganttRef,
   taskListContainerRef,
   taskListRef,
@@ -104,6 +99,8 @@ const TaskListInner: React.FC<TaskListProps> = ({
   canReorderTasks,
   tableBottom,
 }) => {
+  const { cutIdsMirror, selectTaskOnMouseDown, selectedIdsMirror } =
+    useGanttSelection();
   // Manage the column and list table resizing
   const [
     columns,
@@ -156,14 +153,11 @@ const TaskListInner: React.FC<TaskListProps> = ({
         icons: icons,
         indexStr: indexStr,
         isClosed: Boolean((task as Task)?.hideChildren),
-        isCut: cutIdsMirror[id],
         isEven: index % 2 === 1,
-        isSelected: selectedIdsMirror[id],
         isShowTaskNumbers: isShowTaskNumbers,
         onClick: onClick,
         onExpanderClick: onExpanderClick,
         scrollToTask: scrollToTask,
-        selectTaskOnMouseDown: selectTaskOnMouseDown,
         task: task,
         depth: depth,
       } as TaskListTableRowProps;
@@ -171,7 +165,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
     [
       childTasksMap,
       columns,
-      cutIdsMirror,
       dateSetup,
       dependencyMap,
       distances,
@@ -187,8 +180,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
       onClick,
       onExpanderClick,
       scrollToTask,
-      selectTaskOnMouseDown,
-      selectedIdsMirror,
     ]
   );
 
@@ -241,7 +232,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
                 allowMoveTask={allowReorderTask}
                 childTasksMap={childTasksMap}
                 columns={columns}
-                cutIdsMirror={cutIdsMirror}
                 dateSetup={dateSetup}
                 dependencyMap={dependencyMap}
                 distances={distances}
@@ -262,8 +252,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
                 onExpanderClick={onExpanderClick}
                 renderedIndexes={renderedIndexes}
                 scrollToTask={scrollToTask}
-                selectTaskOnMouseDown={selectTaskOnMouseDown}
-                selectedIdsMirror={selectedIdsMirror}
                 taskListWidth={taskListWidth}
                 tasks={tasks}
               />

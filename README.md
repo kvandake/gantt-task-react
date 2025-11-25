@@ -46,6 +46,91 @@ You may handle actions
 />
 ```
 
+## Theming and CSS variables
+
+`Gantt` принимает проп `theme` со структурами `colors`, `typography`, `shape`, `distances`. Значения автоматически превращаются в CSS-переменные, доступные во всех компонентах.
+
+```tsx
+import { Gantt, buildGanttTheme } from "gantt-task-react";
+
+const theme = buildGanttTheme({
+  colors: {
+    backgroundColor: "#F5F7FB",
+    barProgressColor: "#2F80ED",
+    freezeBackgroundColor: "rgba(47, 128, 237, 0.1)",
+    freezeStripeColor: "rgba(47, 128, 237, 0.25)",
+  },
+  typography: {
+    fontFamily: "Inter, sans-serif",
+  },
+});
+
+<Gantt tasks={tasks} theme={theme} />;
+```
+
+Доступные CSS-переменные:
+
+- `--gantt-*` цвета для баров/проектов/tooltip/context-menu
+- `--gantt-font-family`, `--gantt-font-size`, `--gantt-shape-border-radius`
+- `--gantt-freeze-background-color`, `--gantt-freeze-stripe-color` — стили слоя заморозки
+
+Для кастомных компонентов можно получить тему и набор переменных через хуки:
+
+```ts
+import { useGanttTheme, useGanttThemeTokens } from "gantt-task-react";
+
+const CustomControl = () => {
+  const theme = useGanttTheme();
+  const cssVars = useGanttThemeTokens();
+  // ...
+};
+```
+
+## Custom components & feature hooks
+
+- `components`: переопределение корневых частей UI
+
+```tsx
+<Gantt
+  tasks={tasks}
+  components={{
+    TaskList: MyTaskList,
+    TaskBoard: MyTaskBoard,
+    Tooltip: MyTooltip,
+  }}
+/>
+```
+
+- `features`: быстрое включение/выключение модулей (`relations`, `baseline`, `groups`, `freeze`, `tooltip`).
+- Хуки для расширений: `useRelations`, `useBaseline`, `useGroups`, `useZoom`, `useFreezeDates`.
+- `frozenDates`: массив `{ start, end }`, зона подсвечивается `--gantt-freeze-background-color`.
+
+### Freeze dates
+
+```tsx
+<Gantt
+  tasks={tasks}
+  frozenDates={[
+    { start: new Date(2025, 0, 1), end: new Date(2025, 0, 10) },
+    { start: new Date(2025, 1, 20), end: new Date(2025, 1, 25) },
+  ]}
+  calculateFrozenDates
+/>
+```
+
+- При `calculateFrozenDates=true` периоды мерджатся, и библиотека автоматически исключает их из рабочих дней.
+- Внутри Gantt можно вызвать `const { frozenDates, enabled } = useFreezeDates()` и отрисовать кастомное состояние или подсказку.
+
+```ts
+import { useRelations } from "gantt-task-react";
+
+const RelationInspector = () => {
+  const { dependencyMap, enabled } = useRelations();
+  if (!enabled) return null;
+  // render custom relations widget
+};
+```
+
 ## How to run example
 
 ```shell

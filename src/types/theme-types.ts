@@ -92,4 +92,6 @@ export interface ColorStyles {
   calendarStrokeColor: string;
   primaryTextColor: string;
   secondaryTextColor: string;
+  freezeBackgroundColor: string;
+  freezeStripeColor: string;
 }

@@ -1,4 +1,4 @@
-import type { MouseEvent, RefObject } from "react";
+import type { RefObject } from "react";
 import React, { memo, useCallback } from "react";
 
 import {
@@ -24,7 +24,6 @@ import { TaskListSortableTable } from "./task-list-sortable-table";
 import { TaskListTable } from "./task-list-table";
 import styles from "./task-list.module.css";
 import { checkHasChildren } from "../../helpers/check-has-children";
-import { useGanttSelection } from "../gantt/context/selection-context";
 
 export type TaskListProps = {
   ganttRef: RefObject<HTMLDivElement>;
@@ -99,8 +98,6 @@ const TaskListInner: React.FC<TaskListProps> = ({
   canReorderTasks,
   tableBottom,
 }) => {
-  const { cutIdsMirror, selectTaskOnMouseDown, selectedIdsMirror } =
-    useGanttSelection();
   // Manage the column and list table resizing
   const [
     columns,

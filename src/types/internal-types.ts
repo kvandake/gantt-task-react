@@ -7,7 +7,7 @@ import {
   TaskBarMoveAction,
   RenderTask,
 } from "./common-types";
-import { CSSProperties, MouseEvent, RefObject } from "react";
+import { CSSProperties, RefObject } from "react";
 import { OptimizedListParams } from "../helpers/use-optimized-list";
 import {
   AllowReorderTask,

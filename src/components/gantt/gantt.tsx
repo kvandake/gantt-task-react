@@ -17,9 +17,7 @@ import {
   Task,
   TaskBarMoveAction,
   ViewMode,
-  GanttComponentsConfig,
   GanttFeaturesConfig,
-  FrozenDateRange,
 } from "../../types";
 import { GanttTodayProps } from "../gantt-today";
 import { ganttDateRange } from "../../helpers/date-helper";
